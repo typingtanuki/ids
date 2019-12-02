@@ -1,6 +1,7 @@
 package com.github.typingtanuki.ids;
 
 import com.github.typingtanuki.ids.snort.flow.SnortFlow;
+import com.github.typingtanuki.ids.snort.flow.SnortFlowManager;
 
 import java.net.InetAddress;
 import java.util.Arrays;
@@ -27,6 +28,8 @@ public class PacketMetadata {
     private int tcpFlagUrgentPointer;
     private int pointerPos = 0;
     private SnortFlow flow;
+    private Boolean fromServer = null;
+    private SnortFlowManager flowManager;
 
     public InetAddress getSrcAddr() {
         return srcAddr;
@@ -214,5 +217,34 @@ public class PacketMetadata {
 
     public SnortFlow getFlow() {
         return flow;
+    }
+
+    public void defineServer(InetAddress serverIdentity) {
+        if (serverIdentity == null) {
+            return;
+        }
+        if (serverIdentity.equals(srcAddr)) {
+            setFromServer(true);
+        } else if (serverIdentity.equals(dstAddr)) {
+            setFromServer(false);
+        } else {
+            setFromServer(null);
+        }
+    }
+
+    public void setFromServer(Boolean fromServer) {
+        this.fromServer = fromServer;
+    }
+
+    public Boolean getFromServer() {
+        return fromServer;
+    }
+
+    public void setFlowManager(SnortFlowManager flowManager) {
+        this.flowManager = flowManager;
+    }
+
+    public SnortFlowManager getFlowManager() {
+        return flowManager;
     }
 }

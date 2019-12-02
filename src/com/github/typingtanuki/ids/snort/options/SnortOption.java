@@ -84,6 +84,14 @@ public abstract class SnortOption {
                     return new SnortHttpClientBodyOption(value);
                 case http_uri:
                     return new SnortHttpUriOption(value);
+                case http_cookie:
+                    return new SnortHttpCookieOption(value);
+                case http_stat_code:
+                    return new SnortHttpStatCodeOption(value);
+                case http_raw_uri:
+                    return new SnortHttpRawUriOption(value);
+                case itype:
+                    return new SnortITypeOption(value);
                 case msg:
                     rule.setMsg(value);
                     return null;

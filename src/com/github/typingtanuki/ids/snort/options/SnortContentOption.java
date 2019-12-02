@@ -26,6 +26,7 @@ public class SnortContentOption extends SnortOption {
 
     @Override
     public boolean match(PacketMetadata metadata, PeakableIterator<SnortOption> iter) {
+        System.out.println("Partial implementation " + this);
         boolean hexa = false;
         byte[] data = metadata.getData();
         String hexaFirst = null;
