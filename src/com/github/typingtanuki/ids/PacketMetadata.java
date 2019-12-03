@@ -4,7 +4,8 @@ import com.github.typingtanuki.ids.snort.flow.SnortFlow;
 import com.github.typingtanuki.ids.snort.flow.SnortFlowManager;
 
 import java.net.InetAddress;
-import java.util.Arrays;
+
+import static com.github.typingtanuki.ids.utils.OtherUtils.bytesToHex;
 
 public class PacketMetadata {
     private InetAddress srcAddr;
@@ -87,7 +88,7 @@ public class PacketMetadata {
                 ", protocol='" + protocol + '\'' +
                 ", srcPort=" + srcPort +
                 ", dstPort=" + dstPort +
-                ", data=" + Arrays.toString(data) +
+                ", data=" + bytesToHex(data) +
                 '}';
     }
 

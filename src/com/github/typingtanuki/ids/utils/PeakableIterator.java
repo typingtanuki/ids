@@ -45,4 +45,12 @@ public class PeakableIterator<T> implements Iterator<T> {
         }
         element = null;
     }
+
+    @Override
+    public void remove() {
+        if (element != null) {
+            throw new RuntimeException("Can not remove peaked item");
+        }
+        inner.remove();
+    }
 }

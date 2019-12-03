@@ -19,12 +19,12 @@ public class SnortMatcher {
     public List<SnortRule> match(PacketMetadata metadata) throws SnortException {
         flowManager.handle(metadata);
 
-        SnortProtocol protocol = SnortProtocol.valueOf(metadata.getProtocol());
+        SnortProtocol protocol = SnortProtocol.from(metadata.getProtocol());
         List<SnortRule> ruleList = rules.get(protocol);
         if (ruleList == null) {
-            ruleList = rules.get(SnortProtocol.all);
+            ruleList = rules.getOrDefault(SnortProtocol.all, new LinkedList<>());
         } else {
-            ruleList.addAll(rules.get(SnortProtocol.all));
+            ruleList.addAll(rules.getOrDefault(SnortProtocol.all, Collections.emptyList()));
         }
         if (ruleList == null) {
             return Collections.emptyList();

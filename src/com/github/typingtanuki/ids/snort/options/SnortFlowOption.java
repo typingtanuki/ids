@@ -33,7 +33,7 @@ public class SnortFlowOption extends SnortOption {
     }
 
     @Override
-    public boolean match(PacketMetadata metadata, PeakableIterator<SnortOption> iter) {
+    public boolean match(PacketMetadata metadata) {
         if (established && !metadata.getFlowManager().isEstablished(metadata)) {
             return false;
         }
@@ -44,5 +44,10 @@ public class SnortFlowOption extends SnortOption {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void finalize(PeakableIterator<SnortOption> iter) {
+        //Nothing to do
     }
 }

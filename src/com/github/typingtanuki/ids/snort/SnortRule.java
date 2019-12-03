@@ -81,7 +81,7 @@ public class SnortRule {
 
         PeakableIterator<SnortOption> iter = new PeakableIterator<>(options.iterator());
         while (iter.hasNext()) {
-            if (!iter.next().match(metadata, iter)) {
+            if (!iter.next().match(metadata)) {
                 return false;
             }
         }

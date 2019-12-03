@@ -23,23 +23,38 @@ public class Ids extends Thread {
             while (!interrupted()) {
                 capture();
             }
-        } catch (IdsException e) {
+        } catch (IdsException | InterruptedException e) {
+            stopPcaps();
+            Thread.currentThread().interrupt();
             e.printStackTrace();
         }
     }
 
-    private void capture() throws IdsException {
+    private void stopPcaps() {
+        for (PcapMonitor pcap : pcaps) {
+            pcap.stopNow();
+        }
+    }
+
+    private void capture() throws IdsException, InterruptedException {
+        boolean hadSomethingToDo = false;
         for (PcapMonitor monitor : pcaps) {
             if (monitor.hasData()) {
-                monitor.print();
+                monitor.handlePackets();
+                hadSomethingToDo = true;
             }
+        }
+        if (!hadSomethingToDo) {
+            Thread.sleep(100);
         }
     }
 
     private void init() throws IdsException {
+        System.out.println("Preparing to listen to packets...");
         try {
             devices = Pcaps.findAllDevs();
             pcaps = initDevices();
+            System.out.println("Preparing to listen to packets... DONE (" + pcaps.size() + " devices monitored)");
         } catch (PcapNativeException | RuntimeException e) {
             throw new IdsException("Error during init", e);
         }

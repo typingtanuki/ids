@@ -9,9 +9,14 @@ public class NotImplementedSnortOption extends SnortOption {
     }
 
     @Override
-    public final boolean match(PacketMetadata metadata, PeakableIterator<SnortOption> iter) {
+    public final boolean match(PacketMetadata metadata) {
         System.out.println("Not implemented "+this);
         return true;
+    }
+
+    @Override
+    public void finalize(PeakableIterator<SnortOption> iter) {
+        // Nothing to do
     }
 
     @Override

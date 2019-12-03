@@ -47,7 +47,12 @@ public abstract class SnortOption {
                     accum.append(c);
             }
         }
-
+        if (accum.length() > 0) {
+            SnortOption option = parseOption(accum.toString().trim(), rule);
+            if (option != null) {
+                out.add(option);
+            }
+        }
         return out;
     }
 
@@ -150,5 +155,7 @@ public abstract class SnortOption {
                 '}';
     }
 
-    public abstract boolean match(PacketMetadata metadata, PeakableIterator<SnortOption> iter);
+    public abstract boolean match(PacketMetadata metadata) throws SnortException;
+
+    public abstract void finalize(PeakableIterator<SnortOption> iter) throws SnortException;
 }

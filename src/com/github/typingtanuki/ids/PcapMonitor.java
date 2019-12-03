@@ -75,7 +75,7 @@ public class PcapMonitor extends Thread implements PacketListener {
         return !packets.isEmpty();
     }
 
-    public void print() throws IdsException {
+    public void handlePackets() throws IdsException {
         List<Packet> previous;
         synchronized (this) {
             previous = packets;
@@ -112,8 +112,8 @@ public class PcapMonitor extends Thread implements PacketListener {
         handleHeader(header, metadata);
         Packet payload = packet.getPayload();
         if (payload != null) {
-            metadata.setData(payload.getRawData());
             handlePacket(payload, metadata);
+            metadata.setData(payload.getRawData());
         }
     }
 
@@ -151,15 +151,19 @@ public class PcapMonitor extends Thread implements PacketListener {
             metadata.setProtocol("dns");
             return;
         }
-        if (header instanceof IcmpV4CommonPacket.IcmpV4CommonHeader) {
+        if (header instanceof IcmpV4CommonPacket.IcmpV4CommonHeader ||
+                header instanceof IcmpV4EchoPacket.IcmpV4EchoHeader ||
+                header instanceof IcmpV4EchoReplyPacket.IcmpV4EchoReplyHeader) {
             metadata.setProtocol("icmp");
             return;
         }
-        if (header instanceof IcmpV6CommonPacket.IcmpV6CommonHeader ||
+        if (header instanceof IcmpV4DestinationUnreachablePacket.IcmpV4DestinationUnreachableHeader ||
+                header instanceof IcmpV6CommonPacket.IcmpV6CommonHeader ||
                 header instanceof IcmpV6NeighborSolicitationPacket.IcmpV6NeighborSolicitationHeader) {
             metadata.setProtocol("icmp");
             return;
         }
+
         throw new IdsException("Unknown header format: " + header.getClass().getSimpleName(), null);
     }
 
@@ -180,5 +184,9 @@ public class PcapMonitor extends Thread implements PacketListener {
             metadata.setTcpFlagChecksum(tcpHeader.getChecksum());
             metadata.setTcpFlagUrgentPointer(tcpHeader.getUrgentPointerAsInt());
         }
+    }
+
+    public void stopNow() {
+        this.interrupt();
     }
 }

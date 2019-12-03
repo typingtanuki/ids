@@ -1,6 +1,7 @@
 package com.github.typingtanuki.ids.snort;
 
 import com.github.typingtanuki.ids.snort.options.SnortOption;
+import com.github.typingtanuki.ids.utils.PeakableIterator;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,6 +16,7 @@ public class SnortParser {
     private final Map<SnortProtocol, List<SnortRule>> rules = new HashMap<>();
 
     public void parse(Path file) throws SnortException {
+        System.out.println("Parsing snort rules from " + file + "...");
         try {
             StringBuilder fullLine = new StringBuilder();
             for (String line : Files.readAllLines(file)) {
@@ -28,6 +30,11 @@ public class SnortParser {
                     }
                 }
             }
+            int ruleCount = 0;
+            for (List<SnortRule> parsed : rules.values()) {
+                ruleCount += parsed.size();
+            }
+            System.out.println("Parsing snort rules from " + file + "... DONE (" + ruleCount + " rules in " + rules.size() + " protocols)");
         } catch (RuntimeException e) {
             throw new SnortException("Unexpected error", e);
         } catch (IOException e) {
@@ -74,6 +81,10 @@ public class SnortParser {
                 if (optionsStr != null) {
                     options = SnortOption.asSnortOptions(optionsStr.trim(), rule);
                 }
+            }
+            PeakableIterator<SnortOption> iter = new PeakableIterator<>(options.iterator());
+            while (iter.hasNext()) {
+                iter.next().finalize(iter);
             }
             rule.setOptions(options);
 

@@ -9,7 +9,7 @@ package com.github.typingtanuki.ids.snort.options;
  * it is useful if a shorter content is more "unique" than the longer content, meaning the shorter content is less
  * likely to be found in a packet than the longer content.
  */
-public class SnortFastPatternOption extends NotImplementedSnortOption {
+public class SnortFastPatternOption extends SwallowedSnortOption {
     public SnortFastPatternOption(String value) {
         super(SnortOptionType.fast_pattern, value);
     }
