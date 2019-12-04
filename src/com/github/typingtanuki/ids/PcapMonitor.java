@@ -5,12 +5,16 @@ import com.github.typingtanuki.ids.snort.SnortMatcher;
 import com.github.typingtanuki.ids.snort.SnortRule;
 import org.pcap4j.core.*;
 import org.pcap4j.packet.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
 public class PcapMonitor extends Thread implements PacketListener {
+    private static final Logger logger = LoggerFactory.getLogger(PcapMonitor.class);
+
     private static final int READ_TIMEOUT = 10; // [ms]
     private static final int SNAPLEN = 65536; // [bytes]
 
@@ -49,10 +53,8 @@ public class PcapMonitor extends Thread implements PacketListener {
             while (!interrupted()) {
                 loop();
             }
-        } catch (IdsException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (IdsException | InterruptedException e) {
+            logger.error("Error during packet capture, stopping.", e);
             interrupt();
         }
     }
@@ -86,19 +88,23 @@ public class PcapMonitor extends Thread implements PacketListener {
             PacketMetadata metadata = new PacketMetadata();
             handlePacket(packet, metadata);
 
+            if (metadata.getSrcAddr() == null || metadata.getDstAddr() == null) {
+                continue;
+            }
+
             try {
                 if (!metadata.isEmpty()) {
                     List<SnortRule> matches = snort.match(metadata);
                     int counter = 1;
                     if (!matches.isEmpty()) {
-                        System.out.println("-------------------------------------");
-                        System.out.println("DANGER ! matched " + matches.size());
-                        System.out.println(metadata);
+                        logger.warn("-------------------------------------");
+                        logger.warn("DANGER ! matched {}", matches.size());
+                        logger.warn("{}", metadata);
                         for (SnortRule match : matches) {
-                            System.out.println(counter + ") " + match);
+                            logger.warn("{}) {}", counter, match);
                             counter++;
                         }
-                        System.out.println("-------------------------------------");
+                        logger.warn("-------------------------------------");
                     }
                 }
             } catch (SnortException | RuntimeException e) {
@@ -162,6 +168,9 @@ public class PcapMonitor extends Thread implements PacketListener {
                 header instanceof IcmpV6NeighborSolicitationPacket.IcmpV6NeighborSolicitationHeader) {
             metadata.setProtocol("icmp");
             return;
+        }
+        if (header instanceof LlcPacket.LlcHeader) {
+            metadata.setProtocol("llc");
         }
 
         throw new IdsException("Unknown header format: " + header.getClass().getSimpleName(), null);

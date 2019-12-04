@@ -10,7 +10,7 @@ public class NotImplementedSnortOption extends SnortOption {
 
     @Override
     public final boolean match(PacketMetadata metadata) {
-        System.out.println("Not implemented "+this);
+        logger.warn("Not implemented {}", this);
         return true;
     }
 

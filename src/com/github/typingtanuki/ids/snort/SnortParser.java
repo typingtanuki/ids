@@ -2,6 +2,8 @@ package com.github.typingtanuki.ids.snort;
 
 import com.github.typingtanuki.ids.snort.options.SnortOption;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,12 +13,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SnortParser {
+    protected static final Logger logger = LoggerFactory.getLogger(SnortParser.class);
     private static final Pattern SNORT_PATTERN = Pattern.compile("([^(<>\\-]*)(->|<>|<-)([^(]*)(\\((.*)\\))?");
 
     private final Map<SnortProtocol, List<SnortRule>> rules = new HashMap<>();
 
     public void parse(Path file) throws SnortException {
-        System.out.println("Parsing snort rules from " + file + "...");
+        logger.info("Parsing snort rules from {}...", file);
         try {
             StringBuilder fullLine = new StringBuilder();
             for (String line : Files.readAllLines(file)) {
@@ -34,7 +37,7 @@ public class SnortParser {
             for (List<SnortRule> parsed : rules.values()) {
                 ruleCount += parsed.size();
             }
-            System.out.println("Parsing snort rules from " + file + "... DONE (" + ruleCount + " rules in " + rules.size() + " protocols)");
+            logger.info("Parsing snort rules from {}... DONE ({} rules in {} protocols)", file, ruleCount, rules.size());
         } catch (RuntimeException e) {
             throw new SnortException("Unexpected error", e);
         } catch (IOException e) {

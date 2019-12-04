@@ -33,5 +33,6 @@ public enum SnortOptionType {
     http_cookie,
     http_stat_code,
     itype,
-    http_raw_uri
+    http_raw_uri,
+    activates
 }

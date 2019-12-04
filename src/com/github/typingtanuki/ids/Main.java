@@ -1,14 +1,24 @@
 package com.github.typingtanuki.ids;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
 import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.snort.SnortMatcher;
 import com.github.typingtanuki.ids.snort.SnortParser;
+import org.pcap4j.core.PcapHandle;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
 
 public class Main {
 
     public static void main(String[] args) {
+        setupLogger();
+
         SnortParser snort = new SnortParser();
         try {
             snort.parse(Paths.get("snort.txt"));
@@ -24,5 +34,35 @@ public class Main {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    private static void setupLogger() {
+        LoggerContext logCtx = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+        PatternLayoutEncoder logEncoder = new PatternLayoutEncoder();
+        logEncoder.setContext(logCtx);
+        logEncoder.setPattern("%-12date{YYYY-MM-dd HH:mm:ss.SSS} %-5level - %msg%n");
+        logEncoder.start();
+
+        ConsoleAppender<ILoggingEvent> logConsoleAppender = new ConsoleAppender<>();
+        logConsoleAppender.setContext(logCtx);
+        logConsoleAppender.setName("console");
+        logConsoleAppender.setEncoder(logEncoder);
+        logConsoleAppender.start();
+
+        logEncoder = new PatternLayoutEncoder();
+        logEncoder.setContext(logCtx);
+        logEncoder.setPattern("%-12date{YYYY-MM-dd HH:mm:ss.SSS} %-5level - %msg%n");
+        logEncoder.start();
+
+        Logger log = logCtx.getLogger("Main");
+        log.setAdditive(false);
+        log.setLevel(Level.INFO);
+        log.addAppender(logConsoleAppender);
+
+        Logger pcapLog = logCtx.getLogger(PcapHandle.class);
+        pcapLog.setAdditive(false);
+        pcapLog.setLevel(Level.WARN);
+        pcapLog.addAppender(logConsoleAppender);
     }
 }

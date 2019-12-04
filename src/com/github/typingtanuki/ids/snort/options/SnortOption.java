@@ -4,11 +4,15 @@ import com.github.typingtanuki.ids.PacketMetadata;
 import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.snort.SnortRule;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public abstract class SnortOption {
+    protected Logger logger = LoggerFactory.getLogger(SnortOption.class);
+
     protected final SnortOptionType type;
     protected final String value;
 
@@ -95,6 +99,10 @@ public abstract class SnortOption {
                     return new SnortHttpStatCodeOption(value);
                 case http_raw_uri:
                     return new SnortHttpRawUriOption(value);
+                case activated_by:
+                    return new SnortActivatedByOption(value);
+                case activates:
+                    return new SnortActivatesOption(value);
                 case itype:
                     return new SnortITypeOption(value);
                 case msg:
@@ -135,7 +143,6 @@ public abstract class SnortOption {
                     return new SnortDetectionFilterOption(value);
                 case offset:
                     return new SnortOffsetOption(value);
-                case activated_by:
                 case count:
                     // unknown
                     return null;

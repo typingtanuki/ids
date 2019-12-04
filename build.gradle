@@ -29,4 +29,6 @@ dependencies {
     implementation 'org.pcap4j:pcap4j-core:1.8.2'
     implementation 'org.pcap4j:pcap4j-packetfactory-static:1.8.2'
     implementation 'commons-net:commons-net:3.6'
+
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
 }

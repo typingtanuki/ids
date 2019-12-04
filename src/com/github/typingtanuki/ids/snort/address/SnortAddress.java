@@ -42,13 +42,13 @@ public abstract class SnortAddress {
             return new SnortAddressNetwork("192.168.0.00", 24, !isNot);
         }
         if ("$SMTP_SERVERS".equals(s)) {
-            return new SnortAddressNetwork("192.168.10.0", 24, !isNot);
+            return new SnortAddressNetwork("192.168.10.0", 24, isNot);
         }
         if ("$HTTP_SERVERS".equals(s)) {
-            return new SnortAddressNetwork("192.168.11.0", 24, !isNot);
+            return new SnortAddressNetwork("192.168.11.0", 24, isNot);
         }
         if ("$TELNET_SERVERS".equals(s)) {
-            return new SnortAddressNetwork("192.168.12.0", 24, !isNot);
+            return new SnortAddressNetwork("192.168.12.0", 24, isNot);
         }
         throw new SnortException("Unknown address syntax " + s);
     }

@@ -16,7 +16,7 @@ public enum SnortProtocol {
         try {
             return SnortProtocol.valueOf(protocol);
         } catch (IllegalArgumentException e) {
-            System.out.println("Unknown protocol " + protocol);
+            SnortParser.logger.warn("Unknown snort protocol " + protocol);
             return SnortProtocol.unknown;
         }
     }
