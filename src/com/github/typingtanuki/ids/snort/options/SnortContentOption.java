@@ -86,8 +86,10 @@ public class SnortContentOption extends SnortOption {
     private boolean subMatching(byte[] data, int startPos) {
         for (int i = 0; i < lower.size(); i++) {
             byte current = data[startPos + i];
-            if (current != lower.get(i) && current != higher.get(i)) {
-                return false;
+            if (current != lower.get(i)) {
+                if (higher == null || current != higher.get(i)) {
+                    return false;
+                }
             }
         }
         return true;

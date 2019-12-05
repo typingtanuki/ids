@@ -1,19 +1,22 @@
 package com.github.typingtanuki.ids.snort.address;
 
 import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.snort.Variables;
 
 import java.net.InetAddress;
+import java.util.Locale;
 
 public abstract class SnortAddress {
     public static SnortAddress of(String value) throws SnortException {
         String s = value;
         boolean isNot = false;
-        if (s.startsWith("!")) {
-            isNot = true;
+        while (s.startsWith("!")) {
+            isNot = !isNot;
             s = s.substring(1);
         }
 
-        if ("any".equals(s)) {
+        String lower = s.toLowerCase(Locale.ENGLISH);
+        if ("any".equals(lower)) {
             return new SnortAddressAny(isNot);
         }
         if (s.contains("/")) {
@@ -35,21 +38,15 @@ public abstract class SnortAddress {
         if (s.matches("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$")) {
             return new SnortAddressIpV4(s, isNot);
         }
-        if ("$HOME_NET".equals(s)) {
-            return new SnortAddressNetwork("192.168.0.00", 24, isNot);
+
+        if(Variables.isVariable(s)){
+            String prefix="";
+            if(isNot){
+                prefix="!";
+            }
+            return of(prefix+Variables.resolve(s));
         }
-        if ("$EXTERNAL_NET".equals(s)) {
-            return new SnortAddressNetwork("192.168.0.00", 24, !isNot);
-        }
-        if ("$SMTP_SERVERS".equals(s)) {
-            return new SnortAddressNetwork("192.168.10.0", 24, isNot);
-        }
-        if ("$HTTP_SERVERS".equals(s)) {
-            return new SnortAddressNetwork("192.168.11.0", 24, isNot);
-        }
-        if ("$TELNET_SERVERS".equals(s)) {
-            return new SnortAddressNetwork("192.168.12.0", 24, isNot);
-        }
+
         throw new SnortException("Unknown address syntax " + s);
     }
 

@@ -9,6 +9,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.snort.SnortMatcher;
 import com.github.typingtanuki.ids.snort.SnortParser;
+import com.github.typingtanuki.ids.snort.Variables;
 import org.pcap4j.core.PcapHandle;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,8 @@ public class Main {
 
     public static void main(String[] args) {
         setupLogger();
+
+        setupVariables();
 
         SnortParser snort = new SnortParser();
         try {
@@ -34,6 +37,14 @@ public class Main {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    private static void setupVariables() {
+        Variables.define("$HOME_NET", "192.168.0.0/16");
+        Variables.define("$EXTERNAL_NET", "!$HOME_NET");
+        Variables.define("$SMTP_SERVERS", "ANY");
+        Variables.define("$HTTP_SERVERS", "ANY");
+        Variables.define("$TELNET_SERVERS", "ANY");
     }
 
     private static void setupLogger() {
