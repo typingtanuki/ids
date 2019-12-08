@@ -1,7 +1,11 @@
 package com.github.typingtanuki.ids.snort.options;
 
 import com.github.typingtanuki.ids.PacketMetadata;
+import com.github.typingtanuki.ids.snort.ParserUtils;
+import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
+
+import static com.github.typingtanuki.ids.snort.ParserUtils.minMaxParser;
 
 /**
  * http://manual-snort-org.s3-website-us-east-1.amazonaws.com/node33.html#SECTION00467000000000000000
@@ -10,31 +14,17 @@ import com.github.typingtanuki.ids.utils.PeakableIterator;
  * that might cause buffer overflows.
  */
 public class SnortDSizeOption extends SnortOption {
-    private int min = -1;
-    private int max = Integer.MAX_VALUE;
+    private final ParserUtils.MinMaxValue minMax;
 
-    public SnortDSizeOption(String value) {
+    public SnortDSizeOption(String value) throws SnortException {
         super(SnortOptionType.dsize, value);
-        boolean isMax = true;
-        if (value.charAt(0) == '<') {
-            isMax = true;
-            value = value.substring(1);
-        } else if (value.charAt(0) == '>') {
-            isMax = false;
-            value = value.substring(1);
-        }
 
-        int extracted = Integer.parseInt(value);
-        if (isMax) {
-            max = extracted;
-        } else {
-            min = extracted;
-        }
+        minMax = minMaxParser(value);
     }
 
     @Override
     public boolean match(PacketMetadata metadata) {
-        return metadata.getData().length <= min || metadata.getData().length >= max;
+        return minMax.match(metadata.payload().length);
     }
 
     @Override

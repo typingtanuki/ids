@@ -1,207 +1,37 @@
 package com.github.typingtanuki.ids;
 
+import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.snort.SnortProtocol;
 import com.github.typingtanuki.ids.snort.flow.SnortFlow;
 import com.github.typingtanuki.ids.snort.flow.SnortFlowManager;
+import org.pcap4j.packet.Packet;
+import org.pcap4j.packet.TcpPacket;
 
 import java.net.InetAddress;
 
-import static com.github.typingtanuki.ids.utils.OtherUtils.bytesToHex;
-
 public class PacketMetadata {
-    private InetAddress srcAddr;
-    private InetAddress dstAddr;
-    private String protocol;
-    private int srcPort = Integer.MIN_VALUE;
-    private int dstPort = Integer.MIN_VALUE;
-    private byte[] data;
-    private long tcpFlagSequenceNumber;
-    private long tcpFlagAcknowledgmentNumber;
-    private int tcpFlagDataOffset;
-    private byte tcpFlagReserved;
-    private boolean tcpFlagUrg;
-    private boolean tcpFlagAck;
-    private boolean tcpFlagPsh;
-    private boolean tcpFlagRst;
-    private boolean tcpFlagSyn;
-    private boolean tcpFlagFin;
-    private int tcpFlagWindow;
-    private short tcpFlagChecksum;
-    private int tcpFlagUrgentPointer;
+    private Packet packet;
     private int pointerPos = 0;
-    private SnortFlow flow;
-    private Boolean fromServer = null;
+    private PacketHandler handler;
     private SnortFlowManager flowManager;
+    private SnortFlow flow;
+    private InetAddress server;
 
-    public InetAddress getSrcAddr() {
-        return srcAddr;
+    public void setPacket(Packet packet) throws SnortException {
+        this.packet = packet;
+        this.handler = PacketHandler.from(packet);
     }
 
-    public void setSrcAddr(InetAddress srcAddr) {
-        this.srcAddr = srcAddr;
+    public Packet getPacket() {
+        return packet;
     }
 
-    public InetAddress getDstAddr() {
-        return dstAddr;
+    public SnortProtocol protocol() throws SnortException {
+        return handler.getProtocol();
     }
 
-    public void setDstAddr(InetAddress dstAddr) {
-        this.dstAddr = dstAddr;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
-    public int getSrcPort() {
-        return srcPort;
-    }
-
-    public void setSrcPort(int srcPort) {
-        this.srcPort = srcPort;
-    }
-
-    public int getDstPort() {
-        return dstPort;
-    }
-
-    public void setDstPort(int dstPort) {
-        this.dstPort = dstPort;
-    }
-
-    public byte[] getData() {
-        return data;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
-    }
-
-    @Override
-    public String toString() {
-        return "PacketMetadata{" +
-                "srcAddr=" + srcAddr +
-                ", dstAddr=" + dstAddr +
-                ", protocol='" + protocol + '\'' +
-                ", srcPort=" + srcPort +
-                ", dstPort=" + dstPort +
-                ", data=" + bytesToHex(data) +
-                '}';
-    }
-
-    public boolean isEmpty() {
-        return srcAddr == null &&
-                dstAddr == null &&
-                protocol == null &&
-                srcPort != Integer.MIN_VALUE &&
-                dstPort != Integer.MIN_VALUE;
-    }
-
-    public long getTcpFlagSequenceNumber() {
-        return tcpFlagSequenceNumber;
-    }
-
-    public void setTcpFlagSequenceNumber(long tcpFlagSequenceNumber) {
-        this.tcpFlagSequenceNumber = tcpFlagSequenceNumber;
-    }
-
-    public long getTcpFlagAcknowledgmentNumber() {
-        return tcpFlagAcknowledgmentNumber;
-    }
-
-    public void setTcpFlagAcknowledgmentNumber(long tcpFlagAcknowledgmentNumber) {
-        this.tcpFlagAcknowledgmentNumber = tcpFlagAcknowledgmentNumber;
-    }
-
-    public int getTcpFlagDataOffset() {
-        return tcpFlagDataOffset;
-    }
-
-    public void setTcpFlagDataOffset(int tcpFlagDataOffset) {
-        this.tcpFlagDataOffset = tcpFlagDataOffset;
-    }
-
-    public byte getTcpFlagReserved() {
-        return tcpFlagReserved;
-    }
-
-    public void setTcpFlagReserved(byte tcpFlagReserved) {
-        this.tcpFlagReserved = tcpFlagReserved;
-    }
-
-    public boolean getTcpFlagUrg() {
-        return tcpFlagUrg;
-    }
-
-    public void setTcpFlagUrg(boolean tcpFlagUrg) {
-        this.tcpFlagUrg = tcpFlagUrg;
-    }
-
-    public boolean getTcpFlagAck() {
-        return tcpFlagAck;
-    }
-
-    public void setTcpFlagAck(boolean tcpFlagAck) {
-        this.tcpFlagAck = tcpFlagAck;
-    }
-
-    public boolean getTcpFlagPsh() {
-        return tcpFlagPsh;
-    }
-
-    public void setTcpFlagPsh(boolean tcpFlagPsh) {
-        this.tcpFlagPsh = tcpFlagPsh;
-    }
-
-    public boolean getTcpFlagRst() {
-        return tcpFlagRst;
-    }
-
-    public void setTcpFlagRst(boolean tcpFlagRst) {
-        this.tcpFlagRst = tcpFlagRst;
-    }
-
-    public boolean getTcpFlagSyn() {
-        return tcpFlagSyn;
-    }
-
-    public void setTcpFlagSyn(boolean tcpFlagSyn) {
-        this.tcpFlagSyn = tcpFlagSyn;
-    }
-
-    public boolean getTcpFlagFin() {
-        return tcpFlagFin;
-    }
-
-    public void setTcpFlagFin(boolean tcpFlagFin) {
-        this.tcpFlagFin = tcpFlagFin;
-    }
-
-    public int getTcpFlagWindow() {
-        return tcpFlagWindow;
-    }
-
-    public void setTcpFlagWindow(int tcpFlagWindow) {
-        this.tcpFlagWindow = tcpFlagWindow;
-    }
-
-    public short getTcpFlagChecksum() {
-        return tcpFlagChecksum;
-    }
-
-    public void setTcpFlagChecksum(short tcpFlagChecksum) {
-        this.tcpFlagChecksum = tcpFlagChecksum;
-    }
-
-    public int getTcpFlagUrgentPointer() {
-        return tcpFlagUrgentPointer;
-    }
-
-    public void setTcpFlagUrgentPointer(int tcpFlagUrgentPointer) {
-        this.tcpFlagUrgentPointer = tcpFlagUrgentPointer;
+    public byte[] payload() {
+        return packet.getPayload().getRawData();
     }
 
     public int getPointerPos() {
@@ -212,6 +42,30 @@ public class PacketMetadata {
         this.pointerPos = pointerPos;
     }
 
+    public InetAddress getSrcAddr() {
+        return handler.sourceAddress();
+    }
+
+    public int getSrcPort() {
+        return handler.sourcePort();
+    }
+
+    public InetAddress getDstAddr() {
+        return handler.destinationAddress();
+    }
+
+    public int getDstPort() {
+        return handler.destinationPort();
+    }
+
+    public SnortFlowManager getFlowManager() {
+        return flowManager;
+    }
+
+    public void setFlowManager(SnortFlowManager flowManager) {
+        this.flowManager = flowManager;
+    }
+
     public void setFlow(SnortFlow flow) {
         this.flow = flow;
     }
@@ -220,32 +74,32 @@ public class PacketMetadata {
         return flow;
     }
 
-    public void defineServer(InetAddress serverIdentity) {
-        if (serverIdentity == null) {
-            return;
+    public void setServer(InetAddress server) {
+        this.server = server;
+    }
+
+    public InetAddress getServer() {
+        return server;
+    }
+
+    public TcpPacket.TcpHeader getTcpHeader() throws SnortException {
+        if (handler.getProtocol() != SnortProtocol.tcp) {
+            throw new SnortException("Only available for TCP");
         }
-        if (serverIdentity.equals(srcAddr)) {
-            setFromServer(true);
-        } else if (serverIdentity.equals(dstAddr)) {
-            setFromServer(false);
-        } else {
-            setFromServer(null);
+        return handler.getTcpHeader();
+    }
+
+    public <T extends Packet> T fetchPacket(Class<T> clazz) {
+        return fetchThisOrPacket(clazz, packet);
+    }
+
+    private <T extends Packet> T fetchThisOrPacket(Class<T> clazz, Packet p) {
+        if (p == null) {
+            return null;
         }
-    }
-
-    public void setFromServer(Boolean fromServer) {
-        this.fromServer = fromServer;
-    }
-
-    public Boolean getFromServer() {
-        return fromServer;
-    }
-
-    public void setFlowManager(SnortFlowManager flowManager) {
-        this.flowManager = flowManager;
-    }
-
-    public SnortFlowManager getFlowManager() {
-        return flowManager;
+        if (clazz.isInstance(p)) {
+            return (T) p;
+        }
+        return fetchThisOrPacket(clazz, p.getPayload());
     }
 }

@@ -7,7 +7,7 @@ public enum SnortProtocol {
     udp,
     dns,
     arp,
-    igmp, unknown;
+    igmp, unknown, sctp;
 
     public static SnortProtocol from(String protocol) {
         if (protocol == null) {

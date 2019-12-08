@@ -35,7 +35,7 @@ public class SnortContentOption extends SnortOption {
 
     @Override
     public boolean match(PacketMetadata metadata) {
-        byte[] data = metadata.getData();
+        byte[] data = metadata.payload();
 
         // Compute start of check
         int start = metadata.getPointerPos();

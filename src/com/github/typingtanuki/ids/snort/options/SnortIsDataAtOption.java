@@ -68,12 +68,12 @@ public class SnortIsDataAtOption extends SnortOption {
     }
 
     private boolean relativeMatch(PacketMetadata metadata) {
-        int length = metadata.getData().length;
+        int length = metadata.payload().length;
         return length <= position + metadata.getPointerPos();
     }
 
     private boolean absoluteMatch(PacketMetadata metadata) {
-        int length = metadata.getData().length;
+        int length = metadata.payload().length;
         return length <= position;
     }
 
