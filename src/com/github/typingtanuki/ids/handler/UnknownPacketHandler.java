@@ -1,22 +1,19 @@
-package com.github.typingtanuki.ids;
+package com.github.typingtanuki.ids.handler;
 
 import com.github.typingtanuki.ids.snort.SnortProtocol;
+import org.pcap4j.packet.Packet;
 import org.pcap4j.packet.TcpPacket;
-import org.pcap4j.packet.UdpPacket;
 
 import java.net.InetAddress;
 
-public class UdpPacketHandler extends PacketHandler {
-    private UdpPacket packet;
-
-    public UdpPacketHandler(UdpPacket packet) {
+public class UnknownPacketHandler extends PacketHandler {
+    public UnknownPacketHandler(Packet packet) {
         super();
-        this.packet = packet;
     }
 
     @Override
     public SnortProtocol getProtocol() {
-        return SnortProtocol.udp;
+        return SnortProtocol.unknown;
     }
 
     @Override
@@ -26,7 +23,7 @@ public class UdpPacketHandler extends PacketHandler {
 
     @Override
     public int sourcePort() {
-        return packet.getHeader().getSrcPort().value();
+        return -1;
     }
 
     @Override
@@ -36,7 +33,7 @@ public class UdpPacketHandler extends PacketHandler {
 
     @Override
     public int destinationPort() {
-        return packet.getHeader().getDstPort().value();
+        return -1;
     }
 
     @Override

@@ -4,5 +4,5 @@ public enum SnortFlow {
     UNKNOWN,
     SYN_ACKED,
     ESTABLISHED,
-    SYN_RECEIVED
+    FINISHED, SYN_RECEIVED
 }

@@ -4,4 +4,8 @@ public class NotImplementedException extends RuntimeException {
     public NotImplementedException() {
         super("Feature or method is not implemented");
     }
+
+    public NotImplementedException(String description) {
+        super(description);
+    }
 }

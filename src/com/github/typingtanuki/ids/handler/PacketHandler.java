@@ -1,4 +1,4 @@
-package com.github.typingtanuki.ids;
+package com.github.typingtanuki.ids.handler;
 
 import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
@@ -22,6 +22,15 @@ public abstract class PacketHandler {
         }
         if (packet instanceof IpV6Packet) {
             return new Ipv6PacketHandler((IpV6Packet) packet);
+        }
+        if (packet instanceof IcmpV6CommonPacket) {
+            return new IcmpPacketHandler((IcmpV6CommonPacket) packet);
+        }
+        if (packet instanceof IcmpV6NeighborSolicitationPacket) {
+            return new IcmpPacketHandler((IcmpV6NeighborSolicitationPacket) packet);
+        }
+        if (packet instanceof UnknownPacket) {
+            return new UnknownPacketHandler(packet);
         }
         throw new SnortException("Unknown packet type " + packet.getClass().getSimpleName());
     }

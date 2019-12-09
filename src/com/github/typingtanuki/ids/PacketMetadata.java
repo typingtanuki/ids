@@ -1,5 +1,6 @@
 package com.github.typingtanuki.ids;
 
+import com.github.typingtanuki.ids.handler.PacketHandler;
 import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
 import com.github.typingtanuki.ids.snort.flow.SnortFlow;
@@ -8,6 +9,7 @@ import org.pcap4j.packet.Packet;
 import org.pcap4j.packet.TcpPacket;
 
 import java.net.InetAddress;
+import java.util.Map;
 
 public class PacketMetadata {
     private Packet packet;
@@ -16,6 +18,7 @@ public class PacketMetadata {
     private SnortFlowManager flowManager;
     private SnortFlow flow;
     private InetAddress server;
+    private Map<String, Boolean> flowbits;
 
     public void setPacket(Packet packet) throws SnortException {
         this.packet = packet;
@@ -26,7 +29,7 @@ public class PacketMetadata {
         return packet;
     }
 
-    public SnortProtocol protocol() throws SnortException {
+    public SnortProtocol protocol() {
         return handler.getProtocol();
     }
 
@@ -93,6 +96,7 @@ public class PacketMetadata {
         return fetchThisOrPacket(clazz, packet);
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Packet> T fetchThisOrPacket(Class<T> clazz, Packet p) {
         if (p == null) {
             return null;
@@ -101,5 +105,25 @@ public class PacketMetadata {
             return (T) p;
         }
         return fetchThisOrPacket(clazz, p.getPayload());
+    }
+
+    public void setFlowbits(Map<String, Boolean> flowbits) {
+        this.flowbits = flowbits;
+    }
+
+    public void putFlowbit(String variable) {
+        this.flowbits.put(variable, true);
+    }
+
+    public boolean readFlowbit(String variable) {
+        Boolean b = this.flowbits.get(variable);
+        if (b == null) {
+            return false;
+        }
+        return b;
+    }
+
+    public void dropFlowbit(String variable) {
+        this.flowbits.remove(variable);
     }
 }

@@ -1,4 +1,4 @@
-package com.github.typingtanuki.ids;
+package com.github.typingtanuki.ids.handler;
 
 import com.github.typingtanuki.ids.snort.SnortProtocol;
 import org.pcap4j.packet.TcpPacket;

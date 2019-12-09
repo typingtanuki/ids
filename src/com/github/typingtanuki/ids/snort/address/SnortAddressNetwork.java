@@ -31,8 +31,12 @@ public class SnortAddressNetwork extends SnortAddress {
 
     @Override
     public boolean matches(InetAddress packetAddress) throws SnortException {
+        if (packetAddress == null) {
+            return false;
+        }
+
         String ip = packetAddress.getHostAddress();
-        if(!ip.contains(".")){
+        if (!ip.contains(".")) {
             // IPv6
             return false;
         }

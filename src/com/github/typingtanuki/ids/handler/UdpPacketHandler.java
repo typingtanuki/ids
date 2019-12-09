@@ -1,27 +1,27 @@
-package com.github.typingtanuki.ids;
+package com.github.typingtanuki.ids.handler;
 
 import com.github.typingtanuki.ids.snort.SnortProtocol;
-import org.pcap4j.packet.SctpPacket;
 import org.pcap4j.packet.TcpPacket;
+import org.pcap4j.packet.UdpPacket;
 
 import java.net.InetAddress;
 
-public class SctpPacketHandler extends PacketHandler {
-    private SctpPacket packet;
+public class UdpPacketHandler extends PacketHandler {
+    private UdpPacket packet;
 
-    public SctpPacketHandler(SctpPacket packet) {
+    public UdpPacketHandler(UdpPacket packet) {
         super();
         this.packet = packet;
     }
 
     @Override
     public SnortProtocol getProtocol() {
-        return SnortProtocol.sctp;
+        return SnortProtocol.udp;
     }
 
     @Override
     public InetAddress sourceAddress() {
-        throw new NotImplementedException();
+        return null;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class SctpPacketHandler extends PacketHandler {
 
     @Override
     public InetAddress destinationAddress() {
-        throw new NotImplementedException();
+        return null;
     }
 
     @Override
@@ -41,6 +41,6 @@ public class SctpPacketHandler extends PacketHandler {
 
     @Override
     public TcpPacket.TcpHeader getTcpHeader() {
-        throw new NotImplementedException();
+        throw new RuntimeException("Wrong protocol");
     }
 }

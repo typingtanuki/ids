@@ -1,44 +1,54 @@
-package com.github.typingtanuki.ids;
+package com.github.typingtanuki.ids.handler;
 
 import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
-import org.pcap4j.packet.EthernetPacket;
+import org.pcap4j.packet.ArpPacket;
 import org.pcap4j.packet.TcpPacket;
 
 import java.net.InetAddress;
 
-public class EthernetPacketHandler extends PacketHandler {
+public class ArpPacketHandler extends PacketHandler {
     private final PacketHandler subHandler;
-    private EthernetPacket packet;
+    private ArpPacket packet;
 
-    public EthernetPacketHandler(EthernetPacket packet) throws SnortException {
+    public ArpPacketHandler(ArpPacket packet) throws SnortException {
         super();
         this.packet = packet;
-        this.subHandler = PacketHandler.from(packet.getPayload());
+        if (packet.getPayload() != null) {
+            this.subHandler = PacketHandler.from(packet.getPayload());
+        } else {
+            this.subHandler = null;
+        }
     }
 
     @Override
     public SnortProtocol getProtocol() {
-        return subHandler.getProtocol();
+        return SnortProtocol.arp;
     }
 
     @Override
     public InetAddress sourceAddress() {
-        return subHandler.sourceAddress();
+        return packet.getHeader().getSrcProtocolAddr();
     }
 
     @Override
     public int sourcePort() {
+        if(subHandler==null){
+            return -1;
+        }
         return subHandler.sourcePort();
     }
 
     @Override
     public InetAddress destinationAddress() {
-        return subHandler.destinationAddress();
+        return packet.getHeader().getDstProtocolAddr();
     }
 
     @Override
     public int destinationPort() {
+        if(subHandler==null){
+            return -1;
+        }
         return subHandler.destinationPort();
     }
 
