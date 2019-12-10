@@ -1,7 +1,7 @@
 package com.github.typingtanuki.ids.snort.options;
 
-import com.github.typingtanuki.ids.PacketMetadata;
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.PacketInfo;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 
 import java.nio.charset.StandardCharsets;
@@ -34,11 +34,11 @@ public class SnortContentOption extends SnortOption {
     }
 
     @Override
-    public boolean match(PacketMetadata metadata) {
-        byte[] data = metadata.payload();
+    public boolean match(PacketInfo packetInfo) {
+        byte[] data = packetInfo.payload();
 
         // Compute start of check
-        int start = metadata.getPointerPos();
+        int start = packetInfo.getPointerPos();
         if (offset != 0) {
             start = offset;
         }
@@ -74,7 +74,7 @@ public class SnortContentOption extends SnortOption {
             byte current = data[i];
             if (current == firstLower || current == firstHigher) {
                 if (subMatching(data, i)) {
-                    metadata.setPointerPos(i + lower.size());
+                    packetInfo.setPointerPos(i + lower.size());
                     return true;
                 }
             }

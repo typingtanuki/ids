@@ -1,8 +1,8 @@
 package com.github.typingtanuki.ids.snort.options;
 
-import com.github.typingtanuki.ids.PacketMetadata;
+import com.github.typingtanuki.ids.PacketInfo;
 import com.github.typingtanuki.ids.snort.ParserUtils;
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 import org.pcap4j.packet.TransportPacket;
 
@@ -47,8 +47,8 @@ public class SnortUriLenOption extends SnortOption {
     }
 
     @Override
-    public boolean match(PacketMetadata metadata) throws SnortException {
-        return tryMatch(metadata.fetchPacket(TransportPacket.class));
+    public boolean match(PacketInfo packetInfo) throws SnortException {
+        return tryMatch(packetInfo.fetchPacket(TransportPacket.class));
     }
 
     private boolean tryMatch(TransportPacket packet) throws SnortException {

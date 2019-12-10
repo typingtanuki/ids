@@ -1,4 +1,4 @@
-package com.github.typingtanuki.ids.snort;
+package com.github.typingtanuki.ids.exceptions;
 
 public class SnortException extends Exception {
     public SnortException(String message) {

@@ -1,5 +1,7 @@
 package com.github.typingtanuki.ids.snort;
 
+import com.github.typingtanuki.ids.exceptions.SnortException;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;

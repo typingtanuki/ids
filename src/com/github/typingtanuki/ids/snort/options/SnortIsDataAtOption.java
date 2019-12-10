@@ -1,7 +1,7 @@
 package com.github.typingtanuki.ids.snort.options;
 
-import com.github.typingtanuki.ids.PacketMetadata;
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.PacketInfo;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 
 /**
@@ -49,14 +49,14 @@ public class SnortIsDataAtOption extends SnortOption {
     }
 
     @Override
-    public boolean match(PacketMetadata metadata) throws SnortException {
+    public boolean match(PacketInfo packetInfo) throws SnortException {
         boolean match;
         switch (positioning) {
             case absolute:
-                match = absoluteMatch(metadata);
+                match = absoluteMatch(packetInfo);
                 break;
             case relative:
-                match = relativeMatch(metadata);
+                match = relativeMatch(packetInfo);
                 break;
             default:
                 throw new SnortException("Unsupported positioning type " + positioning);
@@ -67,13 +67,13 @@ public class SnortIsDataAtOption extends SnortOption {
         return match;
     }
 
-    private boolean relativeMatch(PacketMetadata metadata) {
-        int length = metadata.payload().length;
-        return length <= position + metadata.getPointerPos();
+    private boolean relativeMatch(PacketInfo packetInfo) {
+        int length = packetInfo.payload().length;
+        return length <= position + packetInfo.getPointerPos();
     }
 
-    private boolean absoluteMatch(PacketMetadata metadata) {
-        int length = metadata.payload().length;
+    private boolean absoluteMatch(PacketInfo packetInfo) {
+        int length = packetInfo.payload().length;
         return length <= position;
     }
 

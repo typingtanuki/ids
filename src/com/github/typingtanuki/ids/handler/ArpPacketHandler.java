@@ -1,24 +1,16 @@
 package com.github.typingtanuki.ids.handler;
 
-import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
 import org.pcap4j.packet.ArpPacket;
-import org.pcap4j.packet.TcpPacket;
 
 import java.net.InetAddress;
 
 public class ArpPacketHandler extends PacketHandler {
-    private final PacketHandler subHandler;
     private ArpPacket packet;
 
-    public ArpPacketHandler(ArpPacket packet) throws SnortException {
-        super();
+    public ArpPacketHandler(ArpPacket packet) {
+        super(packet.getPayload());
         this.packet = packet;
-        if (packet.getPayload() != null) {
-            this.subHandler = PacketHandler.from(packet.getPayload());
-        } else {
-            this.subHandler = null;
-        }
     }
 
     @Override
@@ -33,7 +25,7 @@ public class ArpPacketHandler extends PacketHandler {
 
     @Override
     public int sourcePort() {
-        if(subHandler==null){
+        if (subHandler == null) {
             return -1;
         }
         return subHandler.sourcePort();
@@ -46,14 +38,9 @@ public class ArpPacketHandler extends PacketHandler {
 
     @Override
     public int destinationPort() {
-        if(subHandler==null){
+        if (subHandler == null) {
             return -1;
         }
         return subHandler.destinationPort();
-    }
-
-    @Override
-    public TcpPacket.TcpHeader getTcpHeader() {
-        return subHandler.getTcpHeader();
     }
 }

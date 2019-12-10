@@ -1,5 +1,6 @@
 package com.github.typingtanuki.ids;
 
+import com.github.typingtanuki.ids.exceptions.IdsException;
 import com.github.typingtanuki.ids.snort.SnortMatcher;
 import org.pcap4j.core.PcapNativeException;
 import org.pcap4j.core.PcapNetworkInterface;

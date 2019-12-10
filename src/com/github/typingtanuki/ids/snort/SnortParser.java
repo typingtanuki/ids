@@ -1,5 +1,6 @@
 package com.github.typingtanuki.ids.snort;
 
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.options.SnortOption;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 import org.slf4j.Logger;

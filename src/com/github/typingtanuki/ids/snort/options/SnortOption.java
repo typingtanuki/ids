@@ -1,7 +1,7 @@
 package com.github.typingtanuki.ids.snort.options;
 
-import com.github.typingtanuki.ids.PacketMetadata;
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.PacketInfo;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.SnortRule;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 import org.slf4j.Logger;
@@ -162,7 +162,7 @@ public abstract class SnortOption {
                 '}';
     }
 
-    public abstract boolean match(PacketMetadata metadata) throws SnortException;
+    public abstract boolean match(PacketInfo packetInfo) throws SnortException;
 
     public abstract void finalize(PeakableIterator<SnortOption> iter) throws SnortException;
 }

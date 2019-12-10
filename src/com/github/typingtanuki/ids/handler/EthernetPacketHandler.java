@@ -1,20 +1,13 @@
 package com.github.typingtanuki.ids.handler;
 
-import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
 import org.pcap4j.packet.EthernetPacket;
-import org.pcap4j.packet.TcpPacket;
 
 import java.net.InetAddress;
 
 public class EthernetPacketHandler extends PacketHandler {
-    private final PacketHandler subHandler;
-    private EthernetPacket packet;
-
-    public EthernetPacketHandler(EthernetPacket packet) throws SnortException {
-        super();
-        this.packet = packet;
-        this.subHandler = PacketHandler.from(packet.getPayload());
+    public EthernetPacketHandler(EthernetPacket packet) {
+        super(packet.getPayload());
     }
 
     @Override
@@ -40,10 +33,5 @@ public class EthernetPacketHandler extends PacketHandler {
     @Override
     public int destinationPort() {
         return subHandler.destinationPort();
-    }
-
-    @Override
-    public TcpPacket.TcpHeader getTcpHeader() {
-        return subHandler.getTcpHeader();
     }
 }

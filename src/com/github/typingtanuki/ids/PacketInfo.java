@@ -1,28 +1,29 @@
 package com.github.typingtanuki.ids;
 
 import com.github.typingtanuki.ids.handler.PacketHandler;
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.handler.PacketHandlers;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
 import com.github.typingtanuki.ids.snort.flow.SnortFlow;
 import com.github.typingtanuki.ids.snort.flow.SnortFlowManager;
+import com.github.typingtanuki.ids.utils.Connection;
 import org.pcap4j.packet.Packet;
-import org.pcap4j.packet.TcpPacket;
 
 import java.net.InetAddress;
 import java.util.Map;
 
-public class PacketMetadata {
-    private Packet packet;
+public class PacketInfo {
+    private final Packet packet;
+    private final PacketHandler handler;
+
     private int pointerPos = 0;
-    private PacketHandler handler;
     private SnortFlowManager flowManager;
     private SnortFlow flow;
     private InetAddress server;
     private Map<String, Boolean> flowbits;
 
-    public void setPacket(Packet packet) throws SnortException {
+    public PacketInfo(Packet packet) {
         this.packet = packet;
-        this.handler = PacketHandler.from(packet);
+        this.handler = PacketHandlers.from(packet);
     }
 
     public Packet getPacket() {
@@ -85,13 +86,6 @@ public class PacketMetadata {
         return server;
     }
 
-    public TcpPacket.TcpHeader getTcpHeader() throws SnortException {
-        if (handler.getProtocol() != SnortProtocol.tcp) {
-            throw new SnortException("Only available for TCP");
-        }
-        return handler.getTcpHeader();
-    }
-
     public <T extends Packet> T fetchPacket(Class<T> clazz) {
         return fetchThisOrPacket(clazz, packet);
     }
@@ -125,5 +119,23 @@ public class PacketMetadata {
 
     public void dropFlowbit(String variable) {
         this.flowbits.remove(variable);
+    }
+
+    public Connection connectionInfo() {
+        return new Connection(getSrcAddr(), getSrcPort(), getDstAddr(), getDstPort());
+    }
+
+    public int getIcmpType() {
+        return handler.getIcmpType();
+    }
+
+    @Override
+    public String toString() {
+        return "PacketInfo{" +
+                "packet=" + packet +
+                ", flow=" + flow +
+                ", server=" + server +
+                ", flowbits=" + flowbits +
+                '}';
     }
 }

@@ -1,6 +1,7 @@
 package com.github.typingtanuki.ids;
 
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.exceptions.IdsException;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.SnortMatcher;
 import com.github.typingtanuki.ids.snort.SnortRule;
 import org.pcap4j.core.*;
@@ -84,16 +85,15 @@ public class PcapMonitor extends Thread implements PacketListener {
         }
 
         for (Packet packet : previous) {
-            PacketMetadata metadata = new PacketMetadata();
-            handleRootPacket(packet, metadata);
+            PacketInfo packetInfo = new PacketInfo(packet);
 
             try {
-                List<SnortRule> matches = snort.match(metadata);
+                List<SnortRule> matches = snort.match(packetInfo);
                 int counter = 1;
                 if (!matches.isEmpty()) {
                     logger.warn("-------------------------------------");
                     logger.warn("DANGER ! matched {}", matches.size());
-                    logger.warn("{}", metadata);
+                    logger.warn("{}", packetInfo);
                     for (SnortRule match : matches) {
                         logger.warn("{}) {}", counter, match);
                         counter++;
@@ -103,14 +103,6 @@ public class PcapMonitor extends Thread implements PacketListener {
             } catch (SnortException | RuntimeException e) {
                 throw new IdsException("Error matching packet", e);
             }
-        }
-    }
-
-    private void handleRootPacket(Packet packet, PacketMetadata metadata) throws IdsException {
-        try {
-            metadata.setPacket(packet);
-        } catch (SnortException e) {
-            throw new IdsException("Error preparing metadata handler", e);
         }
     }
 

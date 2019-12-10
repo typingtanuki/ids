@@ -1,6 +1,7 @@
 package com.github.typingtanuki.ids.snort;
 
-import com.github.typingtanuki.ids.PacketMetadata;
+import com.github.typingtanuki.ids.PacketInfo;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.flow.SnortFlowManager;
 
 import java.util.Collections;
@@ -16,10 +17,10 @@ public class SnortMatcher {
         rules = parser.getRules();
     }
 
-    public List<SnortRule> match(PacketMetadata metadata) throws SnortException {
-        flowManager.handle(metadata);
+    public List<SnortRule> match(PacketInfo packetInfo) throws SnortException {
+        flowManager.handle(packetInfo);
 
-        SnortProtocol protocol = metadata.protocol();
+        SnortProtocol protocol = packetInfo.protocol();
         List<SnortRule> ruleList = rules.get(protocol);
         if (ruleList == null) {
             ruleList = rules.getOrDefault(SnortProtocol.all, new LinkedList<>());
@@ -32,7 +33,7 @@ public class SnortMatcher {
 
         List<SnortRule> matched = new LinkedList<>();
         for (SnortRule rule : ruleList) {
-            if (rule.match(metadata)) {
+            if (rule.match(packetInfo)) {
                 matched.add(rule);
             }
         }

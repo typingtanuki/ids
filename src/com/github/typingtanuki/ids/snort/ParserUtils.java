@@ -1,5 +1,7 @@
 package com.github.typingtanuki.ids.snort;
 
+import com.github.typingtanuki.ids.exceptions.SnortException;
+
 public final class ParserUtils {
     private ParserUtils() {
     }

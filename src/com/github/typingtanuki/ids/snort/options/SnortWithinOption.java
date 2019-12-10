@@ -1,6 +1,6 @@
 package com.github.typingtanuki.ids.snort.options;
 
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 
 /**
  * http://manual-snort-org.s3-website-us-east-1.amazonaws.com/node32.html#SECTION004510000000000000000

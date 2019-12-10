@@ -1,6 +1,6 @@
 package com.github.typingtanuki.ids.snort.options;
 
-import com.github.typingtanuki.ids.PacketMetadata;
+import com.github.typingtanuki.ids.PacketInfo;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 
 public class NotImplementedSnortOption extends SnortOption {
@@ -9,7 +9,7 @@ public class NotImplementedSnortOption extends SnortOption {
     }
 
     @Override
-    public final boolean match(PacketMetadata metadata) {
+    public final boolean match(PacketInfo packetInfo) {
         logger.warn("Not implemented {}", this);
         return true;
     }

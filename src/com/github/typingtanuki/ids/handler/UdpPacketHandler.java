@@ -1,7 +1,6 @@
 package com.github.typingtanuki.ids.handler;
 
 import com.github.typingtanuki.ids.snort.SnortProtocol;
-import org.pcap4j.packet.TcpPacket;
 import org.pcap4j.packet.UdpPacket;
 
 import java.net.InetAddress;
@@ -10,7 +9,7 @@ public class UdpPacketHandler extends PacketHandler {
     private UdpPacket packet;
 
     public UdpPacketHandler(UdpPacket packet) {
-        super();
+        super(packet.getPayload());
         this.packet = packet;
     }
 
@@ -37,10 +36,5 @@ public class UdpPacketHandler extends PacketHandler {
     @Override
     public int destinationPort() {
         return packet.getHeader().getDstPort().value();
-    }
-
-    @Override
-    public TcpPacket.TcpHeader getTcpHeader() {
-        throw new RuntimeException("Wrong protocol");
     }
 }

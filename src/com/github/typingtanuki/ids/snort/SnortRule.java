@@ -1,6 +1,8 @@
 package com.github.typingtanuki.ids.snort;
 
-import com.github.typingtanuki.ids.PacketMetadata;
+import com.github.typingtanuki.ids.PacketInfo;
+import com.github.typingtanuki.ids.exceptions.NotImplementedException;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.options.SnortOption;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 
@@ -56,11 +58,11 @@ public class SnortRule {
                 '}';
     }
 
-    public boolean match(PacketMetadata metadata) throws SnortException {
-        if (!source.matches(metadata.getSrcAddr(), metadata.getSrcPort())) {
+    public boolean match(PacketInfo packetInfo) throws SnortException {
+        if (!source.matches(packetInfo.getSrcAddr(), packetInfo.getSrcPort())) {
             return false;
         }
-        if (!destination.matches(metadata.getDstAddr(), metadata.getDstPort())) {
+        if (!destination.matches(packetInfo.getDstAddr(), packetInfo.getDstPort())) {
             return false;
         }
         switch (direction) {
@@ -68,12 +70,12 @@ public class SnortRule {
                 // Match all
                 break;
             case "->":
-                if (!isInternal(metadata.getSrcAddr()) || isInternal(metadata.getDstAddr())) {
+                if (!isInternal(packetInfo.getSrcAddr()) || isInternal(packetInfo.getDstAddr())) {
                     return false;
                 }
                 break;
             case "<-":
-                if (isInternal(metadata.getSrcAddr()) || !isInternal(metadata.getDstAddr())) {
+                if (isInternal(packetInfo.getSrcAddr()) || !isInternal(packetInfo.getDstAddr())) {
                     return false;
                 }
                 break;
@@ -81,8 +83,13 @@ public class SnortRule {
 
         PeakableIterator<SnortOption> iter = new PeakableIterator<>(options.iterator());
         while (iter.hasNext()) {
-            if (!iter.next().match(metadata)) {
-                return false;
+            try {
+                if (!iter.next().match(packetInfo)) {
+                    return false;
+                }
+            } catch (NotImplementedException e) {
+                System.err.println("Could not match rule");
+                e.printStackTrace();
             }
         }
 

@@ -1,19 +1,15 @@
 package com.github.typingtanuki.ids.handler;
 
-import com.github.typingtanuki.ids.snort.SnortException;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
-import org.pcap4j.packet.IpV4Packet;
-import org.pcap4j.packet.TcpPacket;
+import org.pcap4j.packet.IpPacket;
 
 import java.net.InetAddress;
 
-public class Ipv4PacketHandler extends PacketHandler {
-    private final PacketHandler subHandler;
-    private IpV4Packet packet;
+public class IpPacketHandler extends PacketHandler {
+    private IpPacket packet;
 
-    public Ipv4PacketHandler(IpV4Packet packet) throws SnortException {
-        super();
-        this.subHandler = PacketHandler.from(packet.getPayload());
+    public IpPacketHandler(IpPacket packet) {
+        super(packet.getPayload());
         this.packet = packet;
     }
 
@@ -41,10 +37,5 @@ public class Ipv4PacketHandler extends PacketHandler {
     @Override
     public int destinationPort() {
         return subHandler.destinationPort();
-    }
-
-    @Override
-    public TcpPacket.TcpHeader getTcpHeader() {
-        return subHandler.getTcpHeader();
     }
 }

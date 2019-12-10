@@ -1,6 +1,6 @@
 package com.github.typingtanuki.ids.snort.port;
 
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 
 import java.util.ArrayList;
 import java.util.List;

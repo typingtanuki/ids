@@ -1,8 +1,8 @@
 package com.github.typingtanuki.ids.snort.options;
 
-import com.github.typingtanuki.ids.NotImplementedException;
-import com.github.typingtanuki.ids.PacketMetadata;
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.exceptions.NotImplementedException;
+import com.github.typingtanuki.ids.PacketInfo;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 
 /**
@@ -40,27 +40,27 @@ public class SnortFlowbitsOption extends SnortOption {
     }
 
     @Override
-    public boolean match(PacketMetadata metadata) throws SnortException {
+    public boolean match(PacketInfo packetInfo) throws SnortException {
         switch (action) {
             case set:
-                metadata.putFlowbit(variable);
+                packetInfo.putFlowbit(variable);
                 return true;
             case isset:
-                return metadata.readFlowbit(variable);
+                return packetInfo.readFlowbit(variable);
             case unset:
-                metadata.dropFlowbit(variable);
+                packetInfo.dropFlowbit(variable);
                 return true;
             case toggle:
-                if (metadata.readFlowbit(variable)) {
-                    metadata.dropFlowbit(variable);
+                if (packetInfo.readFlowbit(variable)) {
+                    packetInfo.dropFlowbit(variable);
                 } else {
-                    metadata.putFlowbit(variable);
+                    packetInfo.putFlowbit(variable);
                 }
                 return true;
             case noalert:
                 throw new NotImplementedException("Alerting is not implemented");
             case isnotset:
-                return !metadata.readFlowbit(variable);
+                return !packetInfo.readFlowbit(variable);
         }
         throw new SnortException("Unknown flowbit action " + action);
     }

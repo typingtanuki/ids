@@ -1,6 +1,6 @@
 package com.github.typingtanuki.ids.snort.options;
 
-import com.github.typingtanuki.ids.PacketMetadata;
+import com.github.typingtanuki.ids.PacketInfo;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 
 /**
@@ -33,14 +33,14 @@ public class SnortFlowOption extends SnortOption {
     }
 
     @Override
-    public boolean match(PacketMetadata metadata) {
-        if (established && !metadata.getFlowManager().isEstablished(metadata)) {
+    public boolean match(PacketInfo packetInfo) {
+        if (established && !packetInfo.getFlowManager().isEstablished(packetInfo)) {
             return false;
         }
-        if (fromServer && !metadata.getFlowManager().isFromServer(metadata)) {
+        if (fromServer && !packetInfo.getFlowManager().isFromServer(packetInfo)) {
             return false;
         }
-        if (toServer && metadata.getFlowManager().isFromServer(metadata)) {
+        if (toServer && packetInfo.getFlowManager().isFromServer(packetInfo)) {
             return false;
         }
         return true;

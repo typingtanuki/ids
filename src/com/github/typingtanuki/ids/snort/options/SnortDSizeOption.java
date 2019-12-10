@@ -1,8 +1,8 @@
 package com.github.typingtanuki.ids.snort.options;
 
-import com.github.typingtanuki.ids.PacketMetadata;
+import com.github.typingtanuki.ids.PacketInfo;
 import com.github.typingtanuki.ids.snort.ParserUtils;
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 
 import static com.github.typingtanuki.ids.snort.ParserUtils.minMaxParser;
@@ -23,8 +23,8 @@ public class SnortDSizeOption extends SnortOption {
     }
 
     @Override
-    public boolean match(PacketMetadata metadata) {
-        return minMax.match(metadata.payload().length);
+    public boolean match(PacketInfo packetInfo) {
+        return minMax.match(packetInfo.payload().length);
     }
 
     @Override

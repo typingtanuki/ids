@@ -1,5 +1,6 @@
 package com.github.typingtanuki.ids.snort;
 
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.address.SnortAddress;
 import com.github.typingtanuki.ids.snort.port.SnortPort;
 

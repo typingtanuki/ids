@@ -1,6 +1,6 @@
 package com.github.typingtanuki.ids.snort.address;
 
-import com.github.typingtanuki.ids.snort.SnortException;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.Variables;
 
 import java.net.InetAddress;

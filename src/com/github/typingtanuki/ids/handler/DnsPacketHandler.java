@@ -1,21 +1,18 @@
 package com.github.typingtanuki.ids.handler;
 
 import com.github.typingtanuki.ids.snort.SnortProtocol;
-import org.pcap4j.packet.TcpPacket;
+import org.pcap4j.packet.DnsPacket;
 
 import java.net.InetAddress;
 
-public class TcpPacketHandler extends PacketHandler {
-    private TcpPacket packet;
-
-    public TcpPacketHandler(TcpPacket packet) {
+public class DnsPacketHandler extends PacketHandler {
+    public DnsPacketHandler(DnsPacket packet) {
         super(packet.getPayload());
-        this.packet = packet;
     }
 
     @Override
     public SnortProtocol getProtocol() {
-        return SnortProtocol.tcp;
+        return SnortProtocol.dns;
     }
 
     @Override
@@ -25,7 +22,7 @@ public class TcpPacketHandler extends PacketHandler {
 
     @Override
     public int sourcePort() {
-        return packet.getHeader().getSrcPort().value();
+        return -1;
     }
 
     @Override
@@ -35,6 +32,6 @@ public class TcpPacketHandler extends PacketHandler {
 
     @Override
     public int destinationPort() {
-        return packet.getHeader().getDstPort().value();
+        return -1;
     }
 }
