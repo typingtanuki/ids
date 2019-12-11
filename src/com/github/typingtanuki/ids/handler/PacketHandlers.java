@@ -1,8 +1,12 @@
 package com.github.typingtanuki.ids.handler;
 
 import org.pcap4j.packet.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PacketHandlers {
+    public static Logger logger = LoggerFactory.getLogger(PacketHandlers.class);
+
     public static PacketHandler from(Packet packet) {
         if (packet instanceof TransportPacket) {
             return fromTransport((TransportPacket) packet);
@@ -37,7 +41,7 @@ public class PacketHandlers {
         if (packet instanceof DnsPacket) {
             return new DnsPacketHandler((DnsPacket) packet);
         }
-        System.err.println("Unknown packet type " + packet.getClass().getSimpleName());
+        logger.warn("Unknown packet type {}", packet.getClass().getSimpleName());
         return new UnknownPacketHandler(packet);
     }
 
@@ -48,7 +52,7 @@ public class PacketHandlers {
         if (packet instanceof UdpPacket) {
             return new UdpPacketHandler((UdpPacket) packet);
         }
-        System.err.println("Unknown transport packet type " + packet.getClass().getSimpleName());
+        logger.warn("Unknown transport packet type {}", packet.getClass().getSimpleName());
         return new UnknownPacketHandler(packet);
     }
 }

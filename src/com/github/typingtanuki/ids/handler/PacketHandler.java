@@ -33,4 +33,11 @@ public abstract class PacketHandler {
         }
         throw new NotImplementedException("Unknown ICMP type for " + this.getClass().getSimpleName());
     }
+
+    public int getIcmpCode() {
+        if (subHandler != null) {
+            return subHandler.getIcmpCode();
+        }
+        throw new NotImplementedException("Unknown ICMP code for " + this.getClass().getSimpleName());
+    }
 }

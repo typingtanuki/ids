@@ -34,5 +34,12 @@ public enum SnortOptionType {
     http_stat_code,
     itype,
     http_raw_uri,
-    activates
+    activates,
+    service,
+    pkt_data,
+    byte_test,
+    bufferlen,
+    http_raw_header,
+    http_stat_msg,
+    byte_extract
 }

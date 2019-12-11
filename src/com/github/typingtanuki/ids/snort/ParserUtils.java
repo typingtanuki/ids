@@ -7,23 +7,23 @@ public final class ParserUtils {
     }
 
     public static MinMaxValue minMaxParser(String toParse) throws SnortException {
-        if (toParse.contains("<>")) {
-            String[] parts = toParse.split("<>");
+        if (toParse.contains("<>") || toParse.contains("<=>")) {
+            String[] parts = toParse.split("<=?>");
             if (parts.length != 2) {
                 throw new SnortException("Could not parse <> syntax from " + toParse);
             }
-            return new MinMaxValue(intFrom(parts[0]), intFrom(parts[1]));
+            return new MinMaxValue(intFrom(parts[0]), intFrom(parts[1]), toParse.contains("<=>"));
         }
         assertNotEmpty(toParse);
         char prefix = toParse.charAt(0);
         switch (prefix) {
             case '>':
-                return new MinMaxValue(intFrom(toParse.substring(1)), null);
+                return new MinMaxValue(intFrom(toParse.substring(1)), null, false);
             case '<':
-                return new MinMaxValue(null, intFrom(toParse.substring(1)));
+                return new MinMaxValue(null, intFrom(toParse.substring(1)), false);
         }
         int i = intFrom(toParse);
-        return new MinMaxValue(i, i);
+        return new MinMaxValue(i, i, true);
     }
 
     private static void assertNotEmpty(String value) throws SnortException {
@@ -44,10 +44,14 @@ public final class ParserUtils {
     public static class MinMaxValue {
         private final Integer min;
         private final Integer max;
+        private final boolean includes;
 
-        public MinMaxValue(Integer min, Integer max) {
+        public MinMaxValue(Integer min,
+                           Integer max,
+                           boolean includes) {
             this.min = min;
             this.max = max;
+            this.includes = includes;
         }
 
         public Integer getMin() {
@@ -62,7 +66,13 @@ public final class ParserUtils {
             if (min != null && target < min) {
                 return false;
             }
+            if (min != null && target == min && !includes) {
+                return false;
+            }
             if (max != null && target > max) {
+                return false;
+            }
+            if (max != null && target == max && !includes) {
                 return false;
             }
             return true;

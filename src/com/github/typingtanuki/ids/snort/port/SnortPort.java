@@ -33,6 +33,30 @@ public abstract class SnortPort {
                 throw new SnortException("Could not get port number from " + s + " in " + value);
             }
         }
+        if (s.matches("^\\[\\d+\\]$")) {
+            try {
+                int port = Integer.parseInt(s.substring(1, s.length() - 1));
+                return new SnortPortSingle(port, isNot);
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        }
+        if (s.matches("^\\[\\d+:\\]$")) {
+            try {
+                int port = Integer.parseInt(s.substring(1, s.length() - 2));
+                return new SnortPortRange(port, 65536, isNot);
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        }
+        if (s.matches("^\\[:\\d+\\]$")) {
+            try {
+                int port = Integer.parseInt(s.substring(2, s.length() - 1));
+                return new SnortPortRange(0, port, isNot);
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        }
 
         if (s.contains(":")) {
             String[] parts = s.split(":");
@@ -69,6 +93,10 @@ public abstract class SnortPort {
             return new SnortPortSingle(port, isNot);
         } catch (NumberFormatException e) {
 // Do nothing
+        }
+
+        if (s.contains("<") || s.contains(">")) {
+            return new SnortPortMinMax(s);
         }
         throw new SnortException("Unknown port syntax " + s);
     }

@@ -7,36 +7,42 @@ import java.net.InetAddress;
 
 public class IcmpPacketHandler extends PacketHandler {
     private final IcmpV6NeighborSolicitationPacket solicitation;
-    private final int icmpType;
+    private final Integer icmpType;
+    private final Integer icmpCode;
 
     public IcmpPacketHandler(IcmpV6CommonPacket packet) {
         super(packet.getPayload());
         this.solicitation = null;
-        icmpType = packet.getHeader().getType().value();
+        icmpType = (int)packet.getHeader().getType().value();
+        icmpCode = (int)packet.getHeader().getCode().value();
     }
 
     public IcmpPacketHandler(IcmpV6NeighborSolicitationPacket packet) {
         super(packet.getPayload());
         this.solicitation = packet;
-        icmpType = -1;
+        icmpType = null;
+        icmpCode = null;
     }
 
     public IcmpPacketHandler(IcmpV4CommonPacket packet) {
         super(packet.getPayload());
         this.solicitation = null;
-        icmpType = packet.getHeader().getType().value();
+        icmpType = (int)packet.getHeader().getType().value();
+        icmpCode = (int)packet.getHeader().getCode().value();
     }
 
     public IcmpPacketHandler(IcmpV4EchoPacket packet) {
         super(packet.getPayload());
         this.solicitation = null;
-        icmpType = packet.getHeader().getIdentifierAsInt();
+        icmpType = null;
+        icmpCode = null;
     }
 
     public IcmpPacketHandler(IcmpV4EchoReplyPacket packet) {
         super(packet.getPayload());
         this.solicitation = null;
-        icmpType = packet.getHeader().getIdentifierAsInt();
+        icmpType = null;
+        icmpCode = null;
     }
 
     @Override
@@ -69,6 +75,16 @@ public class IcmpPacketHandler extends PacketHandler {
 
     @Override
     public int getIcmpType() {
-        return icmpType;
+        if(icmpType!=null){
+            return icmpType;
+        }
+        return subHandler.getIcmpType();
+    }
+    @Override
+    public int getIcmpCode() {
+        if(icmpCode!=null){
+            return icmpCode;
+        }
+        return subHandler.getIcmpCode();
     }
 }

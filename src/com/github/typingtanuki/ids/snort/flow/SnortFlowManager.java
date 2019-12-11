@@ -94,7 +94,7 @@ public class SnortFlowManager {
             if (maxSeqId == null) {
                 maxSeqId = packet.getHeader().getSequenceNumberAsLong();
             }
-            minSeqId = Math.max(minSeqId, packet.getHeader().getSequenceNumberAsLong());
+            minSeqId = Math.min(minSeqId, packet.getHeader().getSequenceNumberAsLong());
             maxSeqId = Math.max(maxSeqId, packet.getHeader().getSequenceNumberAsLong());
         }
     }

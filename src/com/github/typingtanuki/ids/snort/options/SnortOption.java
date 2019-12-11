@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public abstract class SnortOption {
-    protected Logger logger = LoggerFactory.getLogger(SnortOption.class);
+    protected static Logger logger = LoggerFactory.getLogger(SnortOption.class);
 
     protected final SnortOptionType type;
     protected final String value;
@@ -40,9 +40,13 @@ public abstract class SnortOption {
                     if (inQuotes) {
                         accum.append(c);
                     } else {
-                        SnortOption option = parseOption(accum.toString().trim(), rule);
-                        if (option != null) {
-                            out.add(option);
+                        try {
+                            SnortOption option = parseOption(accum.toString().trim(), rule);
+                            if (option != null) {
+                                out.add(option);
+                            }
+                        } catch (SnortException e) {
+                            logger.error("Could not parse rule {}", accum, e);
                         }
                         accum.setLength(0);
                     }
@@ -143,9 +147,6 @@ public abstract class SnortOption {
                     return new SnortDetectionFilterOption(value);
                 case offset:
                     return new SnortOffsetOption(value);
-                case count:
-                    // unknown
-                    return null;
                 default:
                     return new NotClassedSnortOption(type, value);
             }
