@@ -41,5 +41,16 @@ public enum SnortOptionType {
     bufferlen,
     http_raw_header,
     http_stat_msg,
-    byte_extract
+    byte_extract,
+    base64_decode,
+    base64_data,
+    stream_size,
+    byte_math,
+    ssl_state,
+    icode,
+    dce_iface,
+    dce_opnum,
+    dce_stub_data,
+    ssl_version,
+    http_raw_cookie
 }

@@ -12,8 +12,7 @@ import com.github.typingtanuki.ids.utils.PeakableIterator;
  */
 public class SnortIsDataAtOption extends SnortOption {
     private boolean isNot;
-    private int position;
-    private SnortPositionType positioning;
+    private DataPosition position;
 
     public SnortIsDataAtOption(String value) throws SnortException {
         super(SnortOptionType.isdataat, value);
@@ -32,11 +31,8 @@ public class SnortIsDataAtOption extends SnortOption {
         if (parts.length > 2 || parts.length < 1) {
             throw new SnortException("Invalid isdataat, expected 1 or 2 elements, got " + s + " for " + value);
         }
-        try {
-            position = Integer.parseInt(parts[0]);
-        } catch (NumberFormatException e) {
-            throw new SnortException("Invalid isdataat, expected position, got " + parts[0] + " for " + value, e);
-        }
+
+        SnortPositionType positioning;
         if (parts.length == 2) {
             try {
                 positioning = SnortPositionType.valueOf(parts[1]);
@@ -46,12 +42,28 @@ public class SnortIsDataAtOption extends SnortOption {
         } else {
             positioning = SnortPositionType.absolute;
         }
+
+        if ("file_length".equalsIgnoreCase(parts[0])) {
+            position = new DataPosition(DataPositionType.fileLength, null, positioning);
+        } else if ("data_length".equalsIgnoreCase(parts[0])) {
+            position = new DataPosition(DataPositionType.dataLength, null, positioning);
+        } else if ("length".equalsIgnoreCase(parts[0])) {
+            position = new DataPosition(DataPositionType.length, null, positioning);
+        } else if ("SftOffset".equalsIgnoreCase(parts[0])) {
+            position = new DataPosition(DataPositionType.sftOffset, null, positioning);
+        } else {
+            try {
+                position = new DataPosition(DataPositionType.bytes, Long.parseLong(parts[0]), positioning);
+            } catch (NumberFormatException e) {
+                throw new SnortException("Invalid isdataat, expected position, got " + parts[0] + " for " + value, e);
+            }
+        }
     }
 
     @Override
     public boolean match(PacketInfo packetInfo) throws SnortException {
         boolean match;
-        switch (positioning) {
+        switch (position.getPositioning()) {
             case absolute:
                 match = absoluteMatch(packetInfo);
                 break;
@@ -59,7 +71,7 @@ public class SnortIsDataAtOption extends SnortOption {
                 match = relativeMatch(packetInfo);
                 break;
             default:
-                throw new SnortException("Unsupported positioning type " + positioning);
+                throw new SnortException("Unsupported positioning type " + position.getPositioning());
         }
         if (isNot) {
             return !match;
@@ -69,16 +81,16 @@ public class SnortIsDataAtOption extends SnortOption {
 
     private boolean relativeMatch(PacketInfo packetInfo) {
         int length = packetInfo.payload().length;
-        return length <= position + packetInfo.getPointerPos();
+        return length <= position.getOffest() + packetInfo.getPointerPos();
     }
 
     private boolean absoluteMatch(PacketInfo packetInfo) {
         int length = packetInfo.payload().length;
-        return length <= position;
+        return length <= position.getOffest();
     }
 
     @Override
-    public void finalize(PeakableIterator<SnortOption> iter) throws SnortException {
+    public void finalize(PeakableIterator<SnortOption> iter) {
 
     }
 }

@@ -5,17 +5,9 @@ import org.pcap4j.packet.TcpPacket;
 
 import java.net.InetAddress;
 
-public class TcpPacketHandler extends PacketHandler {
-    private TcpPacket packet;
-
+public class TcpPacketHandler extends PacketHandler<TcpPacket> {
     public TcpPacketHandler(TcpPacket packet) {
-        super(packet.getPayload());
-        this.packet = packet;
-    }
-
-    @Override
-    public SnortProtocol getProtocol() {
-        return SnortProtocol.tcp;
+        super(packet, SnortProtocol.tcp);
     }
 
     @Override

@@ -46,6 +46,7 @@ public class Main {
         Variables.define("$HTTP_SERVERS", "ANY");
         Variables.define("$TELNET_SERVERS", "ANY");
         Variables.define("$SQL_SERVERS", "ANY");
+        Variables.define("$DNS_SERVERS", "ANY");
     }
 
     private static void setupLogger() {

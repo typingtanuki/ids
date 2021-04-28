@@ -14,9 +14,10 @@ import java.util.List;
 public class Ids extends Thread {
     private static final Logger logger = LoggerFactory.getLogger(Ids.class);
 
+    private final SnortMatcher snort;
+
     private List<PcapNetworkInterface> devices;
     private List<PcapMonitor> pcaps;
-    private SnortMatcher snort;
 
     public Ids(SnortMatcher snort) {
         this.snort = snort;
@@ -36,6 +37,9 @@ public class Ids extends Thread {
     }
 
     private void stopPcaps() {
+        if (pcaps == null) {
+            return;
+        }
         for (PcapMonitor pcap : pcaps) {
             pcap.stopNow();
         }

@@ -1,5 +1,6 @@
 package com.github.typingtanuki.ids;
 
+import com.github.typingtanuki.ids.exceptions.OperationNotSupportedException;
 import com.github.typingtanuki.ids.handler.PacketHandler;
 import com.github.typingtanuki.ids.handler.PacketHandlers;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 public class PacketInfo {
     private final Packet packet;
-    private final PacketHandler handler;
+    private final PacketHandler<?> handler;
 
     private int pointerPos = 0;
     private SnortFlowManager flowManager;
@@ -46,19 +47,19 @@ public class PacketInfo {
         this.pointerPos = pointerPos;
     }
 
-    public InetAddress getSrcAddr() {
+    public InetAddress getSrcAddr() throws OperationNotSupportedException {
         return handler.sourceAddress();
     }
 
-    public int getSrcPort() {
+    public int getSrcPort() throws OperationNotSupportedException {
         return handler.sourcePort();
     }
 
-    public InetAddress getDstAddr() {
+    public InetAddress getDstAddr() throws OperationNotSupportedException {
         return handler.destinationAddress();
     }
 
-    public int getDstPort() {
+    public int getDstPort() throws OperationNotSupportedException {
         return handler.destinationPort();
     }
 
@@ -121,11 +122,11 @@ public class PacketInfo {
         this.flowbits.remove(variable);
     }
 
-    public Connection connectionInfo() {
+    public Connection connectionInfo() throws OperationNotSupportedException {
         return new Connection(getSrcAddr(), getSrcPort(), getDstAddr(), getDstPort());
     }
 
-    public int getIcmpType() {
+    public int getIcmpType() throws OperationNotSupportedException {
         return handler.getIcmpType();
     }
 

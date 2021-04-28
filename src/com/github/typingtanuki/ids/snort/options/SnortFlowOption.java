@@ -1,6 +1,8 @@
 package com.github.typingtanuki.ids.snort.options;
 
 import com.github.typingtanuki.ids.PacketInfo;
+import com.github.typingtanuki.ids.exceptions.OperationNotSupportedException;
+import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
 
 /**
@@ -33,15 +35,19 @@ public class SnortFlowOption extends SnortOption {
     }
 
     @Override
-    public boolean match(PacketInfo packetInfo) {
-        if (established && !packetInfo.getFlowManager().isEstablished(packetInfo)) {
-            return false;
-        }
-        if (fromServer && !packetInfo.getFlowManager().isFromServer(packetInfo)) {
-            return false;
-        }
-        if (toServer && packetInfo.getFlowManager().isFromServer(packetInfo)) {
-            return false;
+    public boolean match(PacketInfo packetInfo) throws SnortException {
+        try {
+            if (established && !packetInfo.getFlowManager().isEstablished(packetInfo)) {
+                return false;
+            }
+            if (fromServer && !packetInfo.getFlowManager().isFromServer(packetInfo)) {
+                return false;
+            }
+            if (toServer && packetInfo.getFlowManager().isFromServer(packetInfo)) {
+                return false;
+            }
+        } catch (OperationNotSupportedException e) {
+            throw new SnortException("Could not check flow of packet", e);
         }
         return true;
     }

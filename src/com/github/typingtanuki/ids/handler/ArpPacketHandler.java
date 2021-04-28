@@ -1,21 +1,15 @@
 package com.github.typingtanuki.ids.handler;
 
+import com.github.typingtanuki.ids.exceptions.OperationNotSupportedException;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
 import org.pcap4j.packet.ArpPacket;
+import org.pcap4j.packet.Packet;
 
 import java.net.InetAddress;
 
-public class ArpPacketHandler extends PacketHandler {
-    private ArpPacket packet;
-
+public class ArpPacketHandler extends PacketHandler<ArpPacket> {
     public ArpPacketHandler(ArpPacket packet) {
-        super(packet.getPayload());
-        this.packet = packet;
-    }
-
-    @Override
-    public SnortProtocol getProtocol() {
-        return SnortProtocol.arp;
+        super(packet, SnortProtocol.arp);
     }
 
     @Override
@@ -24,11 +18,8 @@ public class ArpPacketHandler extends PacketHandler {
     }
 
     @Override
-    public int sourcePort() {
-        if (subHandler == null) {
-            return -1;
-        }
-        return subHandler.sourcePort();
+    public int sourcePort() throws OperationNotSupportedException {
+        return getSubHandler(Packet.class).sourcePort();
     }
 
     @Override
@@ -37,10 +28,7 @@ public class ArpPacketHandler extends PacketHandler {
     }
 
     @Override
-    public int destinationPort() {
-        if (subHandler == null) {
-            return -1;
-        }
-        return subHandler.destinationPort();
+    public int destinationPort() throws OperationNotSupportedException {
+        return getSubHandler(Packet.class).destinationPort();
     }
 }

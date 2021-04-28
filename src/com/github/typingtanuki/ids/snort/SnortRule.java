@@ -2,6 +2,7 @@ package com.github.typingtanuki.ids.snort;
 
 import com.github.typingtanuki.ids.PacketInfo;
 import com.github.typingtanuki.ids.exceptions.NotImplementedException;
+import com.github.typingtanuki.ids.exceptions.OperationNotSupportedException;
 import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.options.SnortOption;
 import com.github.typingtanuki.ids.utils.PeakableIterator;
@@ -59,26 +60,30 @@ public class SnortRule {
     }
 
     public boolean match(PacketInfo packetInfo) throws SnortException {
-        if (!source.matches(packetInfo.getSrcAddr(), packetInfo.getSrcPort())) {
-            return false;
-        }
-        if (!destination.matches(packetInfo.getDstAddr(), packetInfo.getDstPort())) {
-            return false;
-        }
-        switch (direction) {
-            case "<>":
-                // Match all
-                break;
-            case "->":
-                if (!isInternal(packetInfo.getSrcAddr()) || isInternal(packetInfo.getDstAddr())) {
-                    return false;
-                }
-                break;
-            case "<-":
-                if (isInternal(packetInfo.getSrcAddr()) || !isInternal(packetInfo.getDstAddr())) {
-                    return false;
-                }
-                break;
+        try {
+            if (!source.matches(packetInfo.getSrcAddr(), packetInfo.getSrcPort())) {
+                return false;
+            }
+            if (!destination.matches(packetInfo.getDstAddr(), packetInfo.getDstPort())) {
+                return false;
+            }
+            switch (direction) {
+                case "<>":
+                    // Match all
+                    break;
+                case "->":
+                    if (!isInternal(packetInfo.getSrcAddr()) || isInternal(packetInfo.getDstAddr())) {
+                        return false;
+                    }
+                    break;
+                case "<-":
+                    if (isInternal(packetInfo.getSrcAddr()) || !isInternal(packetInfo.getDstAddr())) {
+                        return false;
+                    }
+                    break;
+            }
+        } catch (OperationNotSupportedException e) {
+            throw new SnortException("Engine executed an unsupported operation", e);
         }
 
         PeakableIterator<SnortOption> iter = new PeakableIterator<>(options.iterator());

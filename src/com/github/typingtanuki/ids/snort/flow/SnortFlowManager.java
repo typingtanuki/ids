@@ -1,6 +1,7 @@
 package com.github.typingtanuki.ids.snort.flow;
 
 import com.github.typingtanuki.ids.PacketInfo;
+import com.github.typingtanuki.ids.exceptions.OperationNotSupportedException;
 import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
 import com.github.typingtanuki.ids.utils.Connection;
@@ -17,19 +18,23 @@ public class SnortFlowManager {
     private final Map<Connection, InetAddress> serverIdentity = new LinkedHashMap<>();
 
     public void handle(PacketInfo packetInfo) throws SnortException {
-        Connection connection = packetInfo.connectionInfo();
+        try {
+            Connection connection = packetInfo.connectionInfo();
 
-        InetAddress identity = serverIdentity.getOrDefault(connection, null);
-        packetInfo.setServer(identity);
-        SnortFlow currentFlow = stateMap.getOrDefault(connection, SnortFlow.UNKNOWN);
-        packetInfo.setFlow(currentFlow);
-        packetInfo.setFlowManager(this);
+            InetAddress identity = serverIdentity.getOrDefault(connection, null);
+            packetInfo.setServer(identity);
+            SnortFlow currentFlow = stateMap.getOrDefault(connection, SnortFlow.UNKNOWN);
+            packetInfo.setFlow(currentFlow);
+            packetInfo.setFlowManager(this);
 
-        if (packetInfo.protocol() == SnortProtocol.tcp) {
-            handleTcpPacket(currentFlow, connection, packetInfo);
+            if (packetInfo.protocol() == SnortProtocol.tcp) {
+                handleTcpPacket(currentFlow, connection, packetInfo);
+            }
+            stateMap.put(connection, packetInfo.getFlow());
+            packetInfo.setFlowbits(flowbits.get(connection));
+        } catch (OperationNotSupportedException e) {
+            throw new SnortException("Could not handle packet", e);
         }
-        stateMap.put(connection, packetInfo.getFlow());
-        packetInfo.setFlowbits(flowbits.get(connection));
     }
 
     private void handleTcpPacket(SnortFlow currentFlow, Connection connection, PacketInfo packetInfo) throws SnortException {
@@ -39,44 +44,48 @@ public class SnortFlowManager {
         }
 
         List<TcpPacket> packets;
-        if (isFromServer(packetInfo)) {
-            if (!tcpFromServer.containsKey(connection)) {
-                tcpFromServer.put(connection, new LinkedList<>());
+        try {
+            if (isFromServer(packetInfo)) {
+                if (!tcpFromServer.containsKey(connection)) {
+                    tcpFromServer.put(connection, new LinkedList<>());
+                }
+                packets = tcpFromServer.get(connection);
+            } else {
+                if (!tcpToServer.containsKey(connection)) {
+                    tcpToServer.put(connection, new LinkedList<>());
+                }
+                packets = tcpToServer.get(connection);
             }
-            packets = tcpFromServer.get(connection);
-        } else {
-            if (!tcpToServer.containsKey(connection)) {
-                tcpToServer.put(connection, new LinkedList<>());
+            if (packet.getPayload() != null && packet.getPayload().length() > 0) {
+                packets.add(packet);
             }
-            packets = tcpToServer.get(connection);
-        }
-        if (packet.getPayload() != null && packet.getPayload().length() > 0) {
-            packets.add(packet);
-        }
 
-        TcpPacket.TcpHeader tcpHeader = packet.getHeader();
-        if (tcpHeader.getSyn() && !tcpHeader.getAck()) {
-            packetInfo.setFlow(SnortFlow.SYN_RECEIVED);
-            serverIdentity.put(connection, packetInfo.getDstAddr());
-            flowbits.put(connection, new HashMap<>());
-        } else if (tcpHeader.getSyn()) {
-            packetInfo.setFlow(SnortFlow.SYN_ACKED);
-            serverIdentity.put(connection, packetInfo.getSrcAddr());
-            if (!flowbits.containsKey(connection)) {
+            TcpPacket.TcpHeader tcpHeader = packet.getHeader();
+            if (tcpHeader.getSyn() && !tcpHeader.getAck()) {
+                packetInfo.setFlow(SnortFlow.SYN_RECEIVED);
+                serverIdentity.put(connection, packetInfo.getDstAddr());
                 flowbits.put(connection, new HashMap<>());
-            }
-        } else if ((currentFlow == SnortFlow.SYN_ACKED || currentFlow == SnortFlow.SYN_RECEIVED) && tcpHeader.getAck()) {
-            packetInfo.setFlow(SnortFlow.ESTABLISHED);
-            serverIdentity.put(connection, packetInfo.getDstAddr());
-            if (!flowbits.containsKey(connection)) {
-                flowbits.put(connection, new HashMap<>());
-            }
-        } else if (tcpHeader.getFin()) {
-            packetInfo.setFlow(SnortFlow.FINISHED);
-            flowbits.remove(connection);
+            } else if (tcpHeader.getSyn()) {
+                packetInfo.setFlow(SnortFlow.SYN_ACKED);
+                serverIdentity.put(connection, packetInfo.getSrcAddr());
+                if (!flowbits.containsKey(connection)) {
+                    flowbits.put(connection, new HashMap<>());
+                }
+            } else if ((currentFlow == SnortFlow.SYN_ACKED || currentFlow == SnortFlow.SYN_RECEIVED) && tcpHeader.getAck()) {
+                packetInfo.setFlow(SnortFlow.ESTABLISHED);
+                serverIdentity.put(connection, packetInfo.getDstAddr());
+                if (!flowbits.containsKey(connection)) {
+                    flowbits.put(connection, new HashMap<>());
+                }
+            } else if (tcpHeader.getFin()) {
+                packetInfo.setFlow(SnortFlow.FINISHED);
+                flowbits.remove(connection);
 
-            rebuildPackets(tcpFromServer.remove(connection));
-            rebuildPackets(tcpToServer.remove(connection));
+                rebuildPackets(tcpFromServer.remove(connection));
+                rebuildPackets(tcpToServer.remove(connection));
+            }
+        } catch (OperationNotSupportedException e) {
+            throw new SnortException("Could not track TCP packet", e);
         }
     }
 
@@ -106,12 +115,12 @@ public class SnortFlowManager {
                 '}';
     }
 
-    public boolean isEstablished(PacketInfo packetInfo) {
+    public boolean isEstablished(PacketInfo packetInfo) throws OperationNotSupportedException {
         Connection connection = packetInfo.connectionInfo();
         return stateMap.getOrDefault(connection, SnortFlow.UNKNOWN).equals(SnortFlow.ESTABLISHED);
     }
 
-    public boolean isFromServer(PacketInfo packetInfo) {
+    public boolean isFromServer(PacketInfo packetInfo) throws OperationNotSupportedException {
         Connection connection = packetInfo.connectionInfo();
         return packetInfo.getSrcAddr().equals(serverIdentity.getOrDefault(connection, null));
     }

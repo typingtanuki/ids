@@ -3,7 +3,10 @@ package com.github.typingtanuki.ids.snort.port;
 import com.github.typingtanuki.ids.exceptions.SnortException;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class SnortPort {
     public static SnortPort of(String value) throws SnortException {
@@ -21,37 +24,62 @@ public abstract class SnortPort {
         s = s.replaceAll("\\$FILE_DATA_PORTS", "123");
         s = s.replaceAll("\\$HTTP_PORTS", "234");
         s = s.replaceAll("\\$HTTPS_PORTS", "345");
-        s = s.replaceAll("\\$FTP_PORTS", "[3,4,5]");
+        s = s.replaceAll("\\$FTP_PORTS", "3,4,5");
+        s = s.replaceAll("\\$ORACLE_PORTS", "6,7,8");
 
-        if (s.matches("^\\[\\d+:\\d+\\]$")) {
-            String[] parts = s.substring(1, s.length() - 2).split(":");
+        Pattern p = Pattern.compile("\\[(.*)\\]");
+        Matcher m = p.matcher(s);
+        if (m.matches()) {
+            s = m.group(1);
+        }
+
+        String[] chunks = s.split(",");
+        List<SnortPort> out = new LinkedList<>();
+        for (String chunk : chunks) {
+            out.add(compute(chunk, isNot));
+        }
+
+        if (out.isEmpty()) {
+            return new SnortPortAny(isNot);
+        }
+        if (out.size() == 1) {
+            return out.get(0);
+        }
+        return new SnortPortComplex(out);
+    }
+
+    private static SnortPort compute(String chunk, boolean isNot) throws SnortException {
+        String s = chunk;
+
+        if (s.matches("^\\d+:\\d+$")) {
+            String[] parts = s.split(":");
             try {
                 int start = Integer.parseInt(parts[0]);
                 int end = Integer.parseInt(parts[1]);
                 return new SnortPortRange(start, end, isNot);
             } catch (NumberFormatException e) {
-                throw new SnortException("Could not get port number from " + s + " in " + value);
+                throw new SnortException("Could not get port number from " + s + " in " + chunk);
             }
         }
-        if (s.matches("^\\[\\d+\\]$")) {
+        if (s.matches("^\\d+$")) {
             try {
-                int port = Integer.parseInt(s.substring(1, s.length() - 1));
+                int port = Integer.parseInt(s);
                 return new SnortPortSingle(port, isNot);
             } catch (NumberFormatException e) {
                 // Do nothing
             }
         }
-        if (s.matches("^\\[\\d+:\\]$")) {
+        if (s.matches("^\\d+:$")) {
             try {
-                int port = Integer.parseInt(s.substring(1, s.length() - 2));
+                int port = Integer.parseInt(s.substring(0, s.length() - 1));
                 return new SnortPortRange(port, 65536, isNot);
             } catch (NumberFormatException e) {
                 // Do nothing
             }
         }
-        if (s.matches("^\\[:\\d+\\]$")) {
+        if (s.matches("^:\\d+$")) {
             try {
-                int port = Integer.parseInt(s.substring(2, s.length() - 1));
+                int port = Integer.parseInt(s.substring(1));
                 return new SnortPortRange(0, port, isNot);
             } catch (NumberFormatException e) {
                 // Do nothing
@@ -71,12 +99,12 @@ public abstract class SnortPort {
                 }
                 return new SnortPortRange(start, end, isNot);
             } catch (NumberFormatException e) {
-                throw new SnortException("Could not get port number from " + s + " in " + value);
+                throw new SnortException("Could not get port number from " + s + " in " + chunk);
             }
         }
 
-        if (s.matches("^\\[\\d+(,\\d+)+\\]$")) {
-            String[] parts = s.substring(1, s.length() - 2).split(",");
+        if (s.matches("^\\d+(,\\d+)+$")) {
+            String[] parts = s.split(",");
             try {
                 List<Integer> ports = new ArrayList<>(parts.length);
                 for (String part : parts) {
@@ -84,7 +112,7 @@ public abstract class SnortPort {
                 }
                 return new SnortPortList(ports, isNot);
             } catch (NumberFormatException e) {
-                throw new SnortException("Could not get port number from " + s + " in " + value);
+                throw new SnortException("Could not get port number from " + s + " in " + chunk);
             }
         }
 
@@ -92,13 +120,14 @@ public abstract class SnortPort {
             int port = Integer.parseInt(s);
             return new SnortPortSingle(port, isNot);
         } catch (NumberFormatException e) {
-// Do nothing
+            // Do nothing
         }
 
         if (s.contains("<") || s.contains(">")) {
             return new SnortPortMinMax(s);
         }
-        throw new SnortException("Unknown port syntax " + s);
+
+        throw new SnortException("Unknown port syntax " + chunk);
     }
 
     public abstract boolean matches(int packetPort);

@@ -1,18 +1,14 @@
 package com.github.typingtanuki.ids.handler;
 
+import com.github.typingtanuki.ids.exceptions.OperationNotSupportedException;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
 import org.pcap4j.packet.DnsPacket;
 
 import java.net.InetAddress;
 
-public class DnsPacketHandler extends PacketHandler {
+public class DnsPacketHandler extends PacketHandler<DnsPacket> {
     public DnsPacketHandler(DnsPacket packet) {
-        super(packet.getPayload());
-    }
-
-    @Override
-    public SnortProtocol getProtocol() {
-        return SnortProtocol.dns;
+        super(packet, SnortProtocol.dns);
     }
 
     @Override
@@ -21,8 +17,8 @@ public class DnsPacketHandler extends PacketHandler {
     }
 
     @Override
-    public int sourcePort() {
-        return -1;
+    public int sourcePort() throws OperationNotSupportedException {
+        throw OperationNotSupportedException.noSourcePort(getProtocol());
     }
 
     @Override
@@ -31,7 +27,7 @@ public class DnsPacketHandler extends PacketHandler {
     }
 
     @Override
-    public int destinationPort() {
-        return -1;
+    public int destinationPort() throws OperationNotSupportedException {
+        throw OperationNotSupportedException.noDestinationPort(getProtocol());
     }
 }

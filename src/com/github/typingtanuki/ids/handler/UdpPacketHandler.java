@@ -5,17 +5,9 @@ import org.pcap4j.packet.UdpPacket;
 
 import java.net.InetAddress;
 
-public class UdpPacketHandler extends PacketHandler {
-    private UdpPacket packet;
-
+public class UdpPacketHandler extends PacketHandler<UdpPacket> {
     public UdpPacketHandler(UdpPacket packet) {
-        super(packet.getPayload());
-        this.packet = packet;
-    }
-
-    @Override
-    public SnortProtocol getProtocol() {
-        return SnortProtocol.udp;
+        super(packet, SnortProtocol.udp);
     }
 
     @Override

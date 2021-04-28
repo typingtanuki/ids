@@ -1,6 +1,7 @@
 package com.github.typingtanuki.ids.snort.options;
 
 import com.github.typingtanuki.ids.PacketInfo;
+import com.github.typingtanuki.ids.exceptions.OperationNotSupportedException;
 import com.github.typingtanuki.ids.exceptions.SnortException;
 import com.github.typingtanuki.ids.snort.ParserUtils;
 import com.github.typingtanuki.ids.snort.SnortProtocol;
@@ -23,11 +24,15 @@ public class SnortITypeOption extends SnortOption {
     }
 
     @Override
-    public boolean match(PacketInfo packetInfo) {
+    public boolean match(PacketInfo packetInfo) throws SnortException {
         if (packetInfo.protocol() != SnortProtocol.icmp) {
             return false;
         }
-        return minMax.match(packetInfo.getIcmpType());
+        try {
+            return minMax.match(packetInfo.getIcmpType());
+        } catch (OperationNotSupportedException e) {
+            throw new SnortException("Error matching ICMP type", e);
+        }
     }
 
     @Override
